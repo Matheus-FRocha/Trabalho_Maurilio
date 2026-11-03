@@ -176,6 +176,7 @@ public class GameService {
         }
         return removed;
     }
+    public boolean containsRoom(String roomId) { return rooms.containsKey(roomId); }
     private List<Delivery> snapshot(Room room,String messageId) {
         var players=room.players.entrySet().stream().map(e -> new PlayerView(e.getKey(),e.getValue().name,e.getValue().hand.size(),e.getValue().connected)).toList();
         return room.players.entrySet().stream().map(entry -> {
