@@ -85,3 +85,10 @@ Verificação local: Maven clean verify (24), Vitest (9), Playwright contra JAR 
 aprovados. Revisor independente não encontrou achados na correção. JAR local reconstruído e servidor
 reiniciado para servir a versão atual; salas da execução anterior não persistem entre reinícios.
 Corrigido também LF de CSS/HTML/MJS para checks reproduzíveis após checkout no Windows.
+
+5e207da: correção e regressões; a3054f8: README e documentação. CI da branch aprovada em Linux:
+https://github.com/Matheus-FRocha/Trabalho_Maurilio/actions/runs/41746513325
+JAR e ZIPs locais atualizados com a correção. Integração em develop/main por fast-forward,
+seguida de publicação e remoção apenas da branch temporária feature/room-exit, preservando as
+8 branches anteriores. Nenhum deploy público foi criado: GitHub Pages sozinho é insuficiente
+para esta arquitetura. Publicar o jogo requer definir hospedagem com processo Java e WebSocket.

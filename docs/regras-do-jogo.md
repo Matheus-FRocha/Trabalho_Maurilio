@@ -19,4 +19,5 @@ Essas decisões complementares ficam explícitas na sala antes do início.
 Saída voluntária antes do início cancela a sala, com um ou dois participantes: motivo CANCELLED,
 sem vencedor ou empate. Depois de iniciar, saída é abandono e concede vitória ao adversário.
 Ausência temporária/recarregamento permanece uma pausa para reconexão. Somente monte esgotado
-após descarte sem vitória gera empate. Esclarecimento confirmado pela solicitação de revisão do usuário.
+após descarte sem vitória gera empate. Critério de ciclo de vida adotado nesta revisão para corrigir
+o caso relatado pelo usuário; não altera a formação de combinações da variante aprovada.
