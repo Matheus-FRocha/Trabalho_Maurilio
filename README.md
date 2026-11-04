@@ -1,6 +1,6 @@
 # Pife/Caxeta
 
-Jogo web de Pife para **dois jogadores em tempo real**, desenvolvido para Sistemas Operacionais.
+Jogo web de Pife para **2 ou 4 jogadores em tempo real**, desenvolvido para Sistemas Operacionais.
 Servidor Java 21 autoritativo, cliente React, mensagens STOMP/WebSocket, exclusão mútua por sala
 e memória compartilhada real com um monitor em outra JVM. Sem cadastro ou banco de dados.
 
@@ -22,15 +22,20 @@ Para este projeto, a opção mais simples é **publicar o JAR completo em um ser
 O build continua podendo partir do repositório; o processo roda no servidor da hospedagem, não no Git.
 O serviço precisa manter uma instância ativa, aceitar WebSocket e oferecer diretório gravável para os
 arquivos mapeados. Use HTTPS/WSS para acesso público; o proxy deve encaminhar `/ws` com upgrade WebSocket.
-`SERVER_PORT` configura a porta interna, `PIFE_ALLOWED_ORIGINS` as origens exatas autorizadas e
+`PORT` (padrão 8080) ou `SERVER_PORT` configura a porta interna, `PIFE_ALLOWED_ORIGINS` as origens exatas autorizadas e
 `PIFE_SHARED_DIRECTORY` a pasta do espelho de memória compartilhada. Evite múltiplas instâncias,
 pois as salas ficam na memória de um único processo; reinícios perdem as partidas.
 
-O frontend atual usa `/api` e `/ws` na mesma origem que o serve. **Não foi configurado deploy em Pages
-nem existe uma URL pública de partidas nesta entrega.** Para hospedar separadamente, ainda seria
-preciso parametrizar a URL da API/WebSocket e ajustar o base path de assets do Pages; apontar para
-localhost faria cada visitante tentar acessar o próprio computador. A hospedagem Java pública ainda
-precisa ser definida; a execução local e pela rede local continua disponível abaixo.
+O frontend usa `/api` e `/ws` na mesma origem. A publicação preparada é no **Render**, executando
+o Dockerfile da raiz; não é GitHub Pages. O repositório continua privado e o serviço web poderá ser
+público. A URL só será registrada após a plataforma confirmar a implantação; configuração detalhada
+em [docs/hospedagem.md](docs/hospedagem.md). No Render, `RENDER_EXTERNAL_URL` define automaticamente a
+origem autorizada; HTTPS/WSS e forwarded headers são suportados. `render.yaml` especifica plano Free
+e deploy após checks. A confirmação da conta é feita fora do código, sem tokens no repositório.
+
+Para separar Pages e servidor seria necessário parametrizar URLs e base path dos assets. O JAR
+inteiro no Render evita essa separação. O serviço Free pode suspender após inatividade e reiniciar,
+perdendo as partidas em memória; consulte os [limites oficiais](https://render.com/docs/free).
 
 ## Branches e integração
 
@@ -44,9 +49,22 @@ o fluxo normal de novas correções é branch temporária -> develop -> main, ap
 
 - **Antes de começar:** sair da sala cancela a espera, esteja sozinho ou com outro jogador.
   A tela mostra “Sala encerrada”; não há vitória, derrota ou empate porque a partida não começou.
-- **Durante a partida:** clicar em “Sair da partida” é desistência; o adversário vence por abandono.
+- **Durante a partida de 2:** “Sair da partida” é desistência; o adversário vence por abandono.
+- **Durante a partida de 4:** o desistente sai e os demais continuam; turnos pulam quem saiu.
+  Quem fechar os três jogos vence, ou o último participante vence se todos os outros desistirem.
 - **Conexão perdida ou página recarregada:** a partida pausa para reconexão, sem vitória automática.
 - **Empate:** somente quando o monte acaba após um descarte sem vitória por combinações.
+
+## Mesas e navegação
+
+Ao criar, escolha **2 jogadores / 1 baralho** ou **4 jogadores / 2 baralhos**. São 9 cartas por
+pessoa, sem curingas, em partidas individuais. O anfitrião inicia após preencher todos os lugares.
+As cópias físicas do segundo baralho têm IDs distintos; trincas continuam exigindo naipes diferentes.
+As [regras completas](docs/regras-do-jogo.md) incluem turnos, desistência e tratamento do monte.
+
+Clicar na **logo** volta ao início sem recarregar a página e sem desistir. A opção **Retomar mesa**
+leva de volta à partida, inclusive após recarregar a aba. Para abrir outra mesa, saia da anterior
+explicitamente. Desconectar apenas pausa para reconexão dos participantes ativos.
 
 ## Executar no Windows
 
@@ -61,9 +79,9 @@ powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 powershell -ExecutionPolicy Bypass -File scripts/run.ps1
 ```
 
-Acesse **http://localhost:8080** em dois navegadores ou contextos separados (por exemplo Chrome
-e Edge, ou uma janela normal e outra anônima). Crie a mesa, compartilhe o código de seis caracteres,
-entre com o outro jogador e clique em **Começar partida** na janela do anfitrião.
+Acesse **http://localhost:8080** em 2 ou 4 navegadores/contextos separados. Crie a mesa com a
+capacidade desejada, compartilhe o código e preencha os lugares; clique em **Começar partida**
+na janela do anfitrião.
 Cada jogador compra uma carta, seleciona uma da mão e descarta. O servidor reconhece a vitória.
 O JAR já contém o frontend compilado: Node não é necessário para executá-lo depois do build.
 
@@ -146,10 +164,10 @@ O vídeo fica em `output/videos/gameplay.webm`, sem narração. Roteiro de apres
 ## Limitações conhecidas
 
 - Regras da variante aprovadas em [docs/regras-do-jogo.md](docs/regras-do-jogo.md).
-- Dois jogadores; sem curingas, reciclagem de descarte, cadastro, pontuação acumulada ou persistência.
+- Mesas para exatamente 2 ou 4; sem duplas, curingas, reciclagem do descarte, cadastro ou persistência.
 - Reiniciar o servidor perde salas/sessões; recarregar o navegador preserva sessão na mesma aba.
 - Sala expira em 30 minutos sem ações; após expirar, criar outra. Token de reconexão vale duas horas.
-- Desconexão pausa jogadas; saída durante a partida encerra por abandono. Antes do início, cancela a sala.
+- Desconexão de jogador ativo pausa jogadas; desistentes não impedem a continuação. Antes do início, sair cancela a sala.
   Sala nova exige encerrar a anterior.
 - Máximo de 128 salas e 1.000 sessões. Serviço acadêmico, sem infraestrutura de disponibilidade ou TLS.
 - O monitor compartilha a região mapeada com o servidor; os clientes web mantêm cópias separadas.

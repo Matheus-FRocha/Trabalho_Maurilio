@@ -4,6 +4,8 @@
 flowchart LR
   A[Navegador A / React] <-->|STOMP sobre WebSocket| S[Servidor Spring Boot / JVM]
   B[Navegador B / React] <-->|STOMP sobre WebSocket| S
+  C[Navegador C / mesa de 4] <-->|STOMP sobre WebSocket| S
+  D[Navegador D / mesa de 4] <-->|STOMP sobre WebSocket| S
   S --> G[GameService / lock por sala]
   G --> R[Estado autoritativo em memória]
   S --> M[Snapshot público em arquivo mapeado]

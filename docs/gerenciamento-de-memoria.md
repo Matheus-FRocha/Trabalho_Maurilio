@@ -28,7 +28,10 @@ mapeie a região, será necessário um cliente nativo adicional; não afirmar qu
    partidas: contêm somente observações públicas. Após reiniciar, um slot pode refletir execução anterior
    até ser reutilizado. Conferir roomId/versão e se o servidor atual conhece a sala.
 
-Há no máximo 128 salas; cache de comandos limitado a 128 por sala e 52 cartas por partida.
+Há no máximo 128 salas; cache de comandos limitado a 128 por sala e 52 ou 104 cartas por partida.
+Capacidade (2/4), quantidade de baralhos (1/2) e active dos jogadores fazem parte do snapshot público.
+Na desistência a membership é liberada imediatamente. As cartas privadas do desistente permanecem
+no objeto até expirar, sem serem retornadas ao monte ou enviadas aos outros; turnos o ignoram.
 Até 1.000 credenciais anônimas, com expiração de duas horas para reconexão e descarte das expiradas
 desconectadas. Sessions em uso continuam identificadas até desconectar. Não há logs de tokens.
 

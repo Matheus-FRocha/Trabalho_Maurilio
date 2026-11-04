@@ -19,15 +19,16 @@ Campos desconhecidos são rejeitados por Jackson. Payload contém apenas strings
 
 | type | payload | Regra |
 |---|---|---|
-| CREATE_ROOM | name (1..24 caracteres) | Cria sala, criador é anfitrião |
+| CREATE_ROOM | name (1..24 caracteres), maxPlayers (string "2" ou "4", padrão "2") | Cria sala, criador é anfitrião |
 | JOIN_ROOM | name | roomId obrigatório, sala esperando e com vaga |
-| START_GAME | {} | Apenas anfitrião, dois conectados |
+| START_GAME | {} | Apenas anfitrião, capacidade de 2 ou 4 completa e todos conectados |
 | DRAW_CARD | source: DECK ou DISCARD | Na vez e fase DRAW |
 | DISCARD_CARD | cardId: ex. H7 | Na vez e fase DISCARD; deve possuir carta |
 | SYNC_ROOM | {} | Apenas membro; restaura presença e snapshot |
-| LEAVE_ROOM | {} | WAITING: cancela sem vencedor; PLAYING: adversário vence por abandono |
+| LEAVE_ROOM | {} | WAITING cancela; PLAYING remove participante e continua até sobrar um ou haver vitória |
 
-Cartas: `C` paus, `D` ouros, `H` copas, `S` espadas; rank 1..13. ID é naipe+rank.
+Cartas: `C` paus, `D` ouros, `H` copas, `S` espadas; rank 1..13. ID é naipe+rank no primeiro baralho;
+segundo baralho adiciona `-2` (ex.: C1 e C1-2 são cartas físicas diferentes).
 Exemplo: `{ "id":"H7", "rank":7, "suit":"H" }`.
 
 Resposta: `type, messageId, roomId, version, state, code, message`.
@@ -37,9 +38,13 @@ o estado; o cliente sincroniza ao receber STALE_STATE. Mudança de turno está e
 Não há evento TURN_CHANGED separado: o snapshot atômico evita desencontro entre turno e cartas.
 
 Estado: roomId, version, status (WAITING/PLAYING/FINISHED), hostId, turnPlayerId,
-phase (DRAW/DISCARD), players (id/name/cardCount/connected), hand (somente sua mão),
-discardTop, deckCount, winnerId e reason (MELDS/DECK_EMPTY/ABANDONMENT/CANCELLED).
+phase (DRAW/DISCARD), players (id/name/cardCount/connected/active), hand (somente sua mão),
+discardTop, deckCount, winnerId, maxPlayers, deckCopies e reason (MELDS/DECK_EMPTY/ABANDONMENT/CANCELLED).
 Cancelamento usa status FINISHED e reason CANCELLED; winnerId é nulo. Não equivale a empate.
+Desistência na mesa de 4 pode manter status PLAYING; o remetente recebe confirmação com active=false
+e os demais seguem. Se sobrar um, status FINISHED com winnerId e ABANDONMENT. Contagem pública de
+desistente é 0; cartas que ele possuía ficam fora do jogo. Snapshots futuros não vão a desistentes,
+exceto respostas privadas a seus próprios SYNC/identificadores repetidos. SYNC não reativa desistente.
 
 Erros de domínio incluem NOT_YOUR_TURN, WRONG_PHASE, STALE_STATE, NOT_MEMBER, ROOM_NOT_FOUND,
 ROOM_FULL, HOST_ONLY, CARD_NOT_OWNED, EMPTY_DISCARD e PAUSED. CONNECT inválido e destino proibido geram

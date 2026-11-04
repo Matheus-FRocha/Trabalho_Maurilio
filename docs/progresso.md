@@ -92,3 +92,26 @@ JAR e ZIPs locais atualizados com a correção. Integração em develop/main por
 seguida de publicação e remoção apenas da branch temporária feature/room-exit, preservando as
 8 branches anteriores. Nenhum deploy público foi criado: GitHub Pages sozinho é insuficiente
 para esta arquitetura. Publicar o jogo requer definir hospedagem com processo Java e WebSocket.
+
+## 04/11/2026: quatro jogadores, navegação e publicação
+Base 2e0f26a, branch temporária feature/multiplayer-web. Usuário confirmou modalidade individual
+para 4, dois baralhos, desistentes removidos e continuidade dos demais, último participante
+vencendo por abandono. Confirmou tema azul/coral com fundo claro.
+0019267 implementa cartas físicas C1/C1-2, naipes distintos em trincas, capacidades2/4, turnos
+circulares e privacidade/isolamento de desistentes. 950a463 renova visual e logo: navegação
+interna sem reload nem desistência, Home com Retomar mesa e página preservada na mesma aba.
+e141ef9 prepara Docker/Render e CI de contêiner. Docker não estava instalado localmente;
+o job remoto constrói a imagem, testa sete fluxos e executa o monitor em segunda JVM.
+
+Evidências locais: 33 JUnit, 10 Vitest, 7 Playwright verdes; lint, format e build aprovados.
+Four-player e2e: quatro contextos, 9 cartas por pessoa, 67 no monte, quatro turnos, desistências,
+último participante, nova sala sem mensagens antigas e mesa mobile sem overflow.
+Inspeção visual: início desktop/mobile e mesa de quatro desktop/mobile. Revisão independente
+não encontrou achados estáticos; resultado do contêiner e smoke público ainda estão em andamento.
+
+O colega indicado usa Render, não execução Java dentro do GitHub. Nenhum código dele foi copiado.
+Sites foi avaliado, mas seu runtime Workers não executa o backend Java requerido.
+Usuário entrou no Render e autorizou GitHub somente para Trabalho_Maurilio; repositório continua
+privado. Painel configurado para Docker/main, plano Free ($0/mês), health /api/health,
+diretório /app/runtime/shared e deploy após CI. Nenhum serviço pago ou banco foi contratado.
+URL e evidência pública serão registradas após a implantação realmente confirmar sucesso.

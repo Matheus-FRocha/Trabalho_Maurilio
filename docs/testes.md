@@ -1,7 +1,7 @@
 # Validação executada
 
 Ambiente: Windows, Temurin JDK 21.0.13 local, Maven 3.9.11 wrapper, Node 24.15.0 e npm 11.12.1.
-Data: 03/11/2026. Não há Mockito nos testes porque domínio, transporte e IPC são exercitados de verdade.
+Atualização: 04/11/2026. Não há Mockito nos testes porque domínio, transporte e IPC são exercitados de verdade.
 
 ## Cobertura e evidências
 | Suíte | Casos e resultados observados |
@@ -12,12 +12,14 @@ Data: 03/11/2026. Não há Mockito nos testes porque domínio, transporte e IPC 
 | SessionRegistryTest (2) | Token aleatório, token exigido, socket antigo substituído e desconexão antiga sem efeito |
 | SocketSecurityTest (1) | Assinatura alheia e publicação direta no broker recusadas |
 | WebSocketIntegrationTest (2) | Servidor HTTP/socket real, dois jogadores, mãos diferentes, erro de turno e compras/descartes; CONNECT inválido |
-| Vitest (9) | Snapshots e pending, ordenação, IDs sem randomUUID, cancelamento/empate/abandono e resultado sem motivo conhecido |
-| Playwright (5) | Duas sessões com sala/turnos/reload/resultado/nova sala; falta de randomUUID; início móvel; cancelar sala sozinho ou com dois antes do início |
+| FourPlayerTest (8) | 104 IDs físicos, faces duplicadas/trincas, vagas, distribuição privada, quatro turnos, desistência e último participante, nova sala e SYNC antigo |
+| PublicOriginIntegrationTest (1) | Origem pública RENDER_EXTERNAL_URL permitida; origem diferente recusada |
+| Vitest (10) | Snapshots e pending, ordenação, IDs, cancelamento/empate/abandono e resultado de quem saiu enquanto outros continuam |
+| Playwright (7) | Dois ou quatro contextos, turnos, logo sem reload/desistência, retomada/reload, desistentes, nova sala, mobile e cancelamento |
 
-Total Java observado: **24 testes, zero falhas/erros/ignorados**. Frontend: **9 testes** unitários e
-**5 testes** de navegador, sem erros de página. ESLint, Prettier e Vite build passaram.
-Os cinco casos de navegador também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
+Total Java observado: **33 testes, zero falhas/erros/ignorados**. Frontend: **10 testes** unitários e
+**7 testes** de navegador, sem erros de página. ESLint, Prettier e Vite build passaram.
+Os sete casos de navegador também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
 sem Vite. GET / retornou HTTP 200 com assets compilados e /api/health retornou UP.
 Na validação da entrega inicial, o ZIP com executável foi extraído em diretório limpo, iniciado
 pelo iniciar.cmd na porta 8081, e os três testes então existentes passaram. Monitor.cmd também leu o mmap.
@@ -50,6 +52,12 @@ para manipular baralho ou mãos. Encerramento completo no navegador usa saída v
   mesa fictícia e vitória do adversário apenas durante partida iniciada. Cinco Playwright passaram.
 - Checkout no Windows convertia CSS/HTML/MJS para CRLF e falhava na formatação. Esses formatos
   passaram a ter LF explícito em .gitattributes; Prettier voltou a passar.
+- Logo usava link com reload: teste de navegador observou perda da variável do documento.
+  Agora o documento é preservado, a home oferece Retomar mesa e a preferência de página sobrevive
+  ao reload da aba. Quatro clientes também exercitam a logo durante uma partida em andamento.
+- Mesa de quatro: testes asseguram que desistente não recebe eventos futuros da sala antiga,
+  não volta a ficar ativo via SYNC e pode criar outra sala sem interferência. Ás baixo e trincas de
+  naipes distintos foram mantidos com cartas físicas repetidas nos dois baralhos.
 
 ## Limites
 Os testes não comprovam desempenho sob carga ou disponibilidade distribuída. Teste automatizado de

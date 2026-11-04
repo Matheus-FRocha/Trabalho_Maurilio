@@ -19,6 +19,7 @@ são requisitos do usuário. A apresentação também foi solicitada pelo usuár
 | Requisito | Implementação / evidência |
 |---|---|
 | Dois usuários | Contextos independentes em `frontend/e2e/game.spec.js` |
+| 2 ou 4 usuários (ampliação pedida) | Quatro contextos em `frontend/e2e/four-player.spec.js`; 1/2 baralhos e 9 cartas por pessoa |
 | Sockets e notação | `/ws`, STOMP, envelope JSON PIFE/1 |
 | Regras no servidor | GameService e MeldValidator, testes JUnit |
 | Estado central | Salas em ConcurrentHashMap, snapshots privados |
@@ -29,3 +30,5 @@ são requisitos do usuário. A apresentação também foi solicitada pelo usuár
 | Entrega | Scripts de build/pacote e roteiro em docs/entrega.md |
 
 Não fazem parte: banco, ranking, login permanente ou histórico. Nomes e turma não foram fornecidos.
+Em 04/11/2026 foram confirmados jogo individual para quatro (sem duplas), continuidade após
+desistências e tema azul/coral com fundo claro. Java e IPC foram preservados na preparação do Render.
