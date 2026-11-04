@@ -20,10 +20,16 @@ Atualização: 04/11/2026. Não há Mockito nos testes porque domínio, transpor
 Total Java observado: **33 testes, zero falhas/erros/ignorados**. Frontend: **13 testes** unitários e
 **9 testes** de navegador no ambiente de desenvolvimento e contra o frontend servido pelo JAR
 (PIFE_BASE_URL=8080), sem Vite. ESLint, Prettier e Vite build passaram.
-Os nove casos ampliados estão em verificação na publicação. GET / retornou
-HTTP 200 com assets compilados e /api/health retornou UP.
+Os nove casos também passaram em **https://pife-caxeta.onrender.com**, via HTTPS/WSS,
+após reconstrução sem cache do commit ce9e1d6 no Render Free (04/11/2026): 9/9, em 1,2 minuto.
+GET / retornou HTTP200 com index-Dy0d70QZ.js e /api/health retornou UP.
+Diagnóstico adicional executou 12 recargas consecutivas de resultado antigo enquanto o outro
+jogador estava em nova sala: 12 recuperadas, zero falhas. Houve 20 SYNC enviados, demonstrando
+tentativas adicionais sem repetir ações de jogo. Isso não é prova de disponibilidade permanente.
 Na validação da entrega inicial, o ZIP com executável foi extraído em diretório limpo, iniciado
 pelo iniciar.cmd na porta 8081, e os três testes então existentes passaram. Monitor.cmd também leu o mmap.
+Na atualização para quatro jogadores/recuperação, um novo ZIP foi extraído em pasta nova, seu JAR
+foi iniciado com Java21 na porta8081 e os nove cenários passaram; segunda JVM leu o mmap do pacote.
 Inspeção dos ZIPs: nenhum arquivo-fonte ausente, nenhuma credencial/runtime/dependência local,
 LICENSE idêntico ao original e nenhum .jar/.class/.exe no ZIP apenas de fontes.
 O vídeo foi decodificado para conferência: 61,16 segundos, VP9/WebM, 1440x1080, 25 fps, sem áudio.

@@ -27,11 +27,17 @@ Interface: ir ao início preserva sessão; Retomar usa view atual; criar/entrar 
 Arquivos: Dockerfile, .dockerignore, render.yaml, application.properties, docs/README.
 - [x] Consultar APIs/configurações oficiais/Context7 e preparar deploy que execute Java21.
 - [x] Validar origem pública, PORT e forwarded headers; preservar mmap em diretório gravável.
-- [ ] Publicar em Render após acesso confirmado e verificar URL/partida real na web.
+- [x] Publicar em Render após acesso confirmado e verificar URL/partida real na web.
 
 ### Task 4: Revisão e entrega
 - [x] Revisão independente, regressões e suítes completas; documentar regras/resultados reais.
-- [ ] Integrar develop/main, push/CI, pacotes e confirmar acesso público ou bloqueio concreto.
+- [x] Integrar develop/main, push/CI, pacotes e confirmar acesso público.
+
+Validação final: 33 JUnit, 13 Vitest, 9 Playwright no desenvolvimento, JAR, pacote, contêiner
+e URL pública. CI main41822170110 aprovada. Render Free Livece9e1d6 após reconstrução sem cache.
+Acrescentada recuperação limitada de SYNC após resposta perdida e correlação de criação/entrada
+além do timeout visual, ambas reproduzidas RED/GREEN e revisadas. Doze recargas públicas adicionais
+recuperadas sem falha. Detalhes/limites em docs/testes.md e docs/progresso.md.
 
 Autonomia de execução e Git já concedidas; trabalhar nesta raiz, preservar LICENSE e origin.
 Não copiar o trabalho do colega nem remover requisitos para facilitar hospedagem.

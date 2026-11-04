@@ -130,3 +130,25 @@ criação/entrada agora sobrevive ao timeout e é limpa ao concluir/resetar. Nen
 Regressões foram observadas RED e GREEN: 13 Vitest e 9 Playwright locais; Maven 33 testes aprovado.
 Os nove cenários também passaram no JAR completo servido na porta8080, sem Vite.
 CI da correção e repetição pública ainda em andamento.
+
+CI de ce9e1d6 aprovada em main/develop/feature, incluindo nove Playwright no contêiner:
+https://github.com/Matheus-FRocha/Trabalho_Maurilio/actions/runs/41822170110
+ZIP executável atualizado, extraído em pasta nova e aprovado nos nove cenários na porta8081;
+monitor separado leu o mmap, e todos os arquivos de fontes/LICENSE estão nos dois pacotes.
+
+Render marcou dep-dblhir8473hc73b7af80/ce9e1d6 Live, mas a URL ainda entregava o JS anterior
+index-zrHHY29g.js; o build registrou index-Dy0d70QZ.js, e esse asset retornava404 na web.
+Não era cache do navegador: requisições HTTP novas apresentaram no-store/CF DYNAMIC.
+A suíte pública nesse estado passou seis de nove; falharam retomada e recuperação.
+Configuração Docker/main/contexto/comando foi conferida; reconstrução sem cache do mesmo commit
+iniciada em dep-dblhlerm8hqs739armp0. Plano permanece Free. Causa ainda não demonstrada.
+
+Reconstrução dep-dblhlerm8hqs739armp0 concluída Live em 2m12s. URL passou a entregar o asset
+esperado index-Dy0d70QZ.js, API UP. Suíte pública final: 9/9 em 1,2 minuto, incluindo quatro
+jogadores, dois jogadores, logo, reload, cancelamento e falhas de rede simuladas sobre socket real.
+Diagnóstico adicional: 12/12 recargas consecutivas recuperadas, 20 SYNC enviados. Nenhuma mão/token
+foi registrada nesse diagnóstico. Capturas públicas desktop e mobile inspecionadas.
+Revisão independente da recuperação corrigiu o único achado; revisão adicional não achou caminho
+Docker/POM que explicasse o artefato anterior. Não se atribuiu uma causa não comprovada ao Render.
+Registro final só documental usa [skip render] para preservar a implantação de aplicação ce9e1d6
+e evitar reiniciar partidas por uma atualização de README/documentação.

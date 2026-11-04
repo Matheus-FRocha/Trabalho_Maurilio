@@ -38,14 +38,28 @@ Free não oferece shell interativo no Render. A demonstração do monitor deve s
 ou pelo job de CI, que executa outro processo Java no mesmo contêiner e lê as páginas mapeadas.
 O servidor público escreve snapshots; o navegador continua usando sockets, sem acesso ao mmap.
 
+## Atualizar e verificar
+Commits de aplicação na main são publicados após os checks da CI. Conferir o commit Live e
+também a versão dos assets na URL pública; o status do painel sozinho não substitui testar o jogo.
+Se houver divergência comprovada, Manual Deploy -> Clear build cache & deploy reconstrói a imagem.
+Atualizações apenas de documentação podem usar `[skip render]` na mensagem do commit para evitar
+um reinício desnecessário das partidas, conforme a documentação oficial de deploys.
+
 ## Estado da publicação
 URL pública: **https://pife-caxeta.onrender.com**. Plataforma confirmou Live em 04/11/2026,
 serviço `srv-dblh5d3ncjis73drmr40`, Docker/Free, branch main, commit de aplicação/documentação 8472493.
 Primeiro deploy `dep-dblh5djncjis73drmrlg`; atualização automática do mesmo commit
 `dep-dblh6qnavr4c73cs2nmg`, também Live. Repositório mantido privado.
+Correção de recuperação em ce9e1d6, CI aprovada e reconstrução sem cache
+`dep-dblhlerm8hqs739armp0` Live. Após essa reconstrução, HTTP público passou a entregar
+o asset correto `index-Dy0d70QZ.js`. O deploy automático anterior informava Live, mas ainda
+servia o JS antigo; a causa exata não foi demonstrada. Nenhum recurso pago foi adicionado.
 Painel: https://dashboard.render.com/web/srv-dblh5d3ncjis73drmr40
 HTTP `/` retornou 200 com assets compilados e `/api/health` retornou UP na URL pública.
-O resultado do teste de partidas públicas é registrado em docs/testes.md após sua execução.
+Nove cenários de navegador públicos aprovados, incluindo mesas2/4, navegação, desistência,
+reconexão, atraso de criação e resposta SYNC perdida; mais 12 recargas consecutivas recuperadas.
+Resultados e limites em docs/testes.md. A atualização final apenas de documentação usa
+`[skip render]`; a aplicação implantada e testada permanece em ce9e1d6.
 
 Fontes consultadas em 04/11/2026:
 - https://render.com/docs/docker
@@ -53,4 +67,5 @@ Fontes consultadas em 04/11/2026:
 - https://render.com/docs/environment-variables
 - https://render.com/docs/websocket
 - https://render.com/docs/free
+- https://render.com/docs/deploys
 Configurações de Spring e Render também foram conferidas no Context7.
