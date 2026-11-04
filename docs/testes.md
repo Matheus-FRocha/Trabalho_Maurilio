@@ -18,9 +18,9 @@ Atualização: 04/11/2026. Não há Mockito nos testes porque domínio, transpor
 | Playwright (9) | Dois ou quatro contextos, turnos, logo, retomada/reload, desistentes, nova sala, mobile, cancelamento, resposta de criação atrasada e primeira resposta SYNC perdida |
 
 Total Java observado: **33 testes, zero falhas/erros/ignorados**. Frontend: **13 testes** unitários e
-**9 testes** de navegador no ambiente de desenvolvimento. ESLint, Prettier e Vite build passaram.
-Os sete casos anteriores também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
-sem Vite; os nove casos ampliados estão em verificação no JAR e na publicação. GET / retornou
+**9 testes** de navegador no ambiente de desenvolvimento e contra o frontend servido pelo JAR
+(PIFE_BASE_URL=8080), sem Vite. ESLint, Prettier e Vite build passaram.
+Os nove casos ampliados estão em verificação na publicação. GET / retornou
 HTTP 200 com assets compilados e /api/health retornou UP.
 Na validação da entrega inicial, o ZIP com executável foi extraído em diretório limpo, iniciado
 pelo iniciar.cmd na porta 8081, e os três testes então existentes passaram. Monitor.cmd também leu o mmap.

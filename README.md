@@ -30,7 +30,7 @@ arquivos mapeados. Use HTTPS/WSS para acesso público; o proxy deve encaminhar `
 pois as salas ficam na memória de um único processo; reinícios perdem as partidas.
 
 O frontend usa `/api` e `/ws` na mesma origem. A publicação está no **Render**, executando
-o Dockerfile da raiz; não é GitHub Pages. O repositório continua privado e o serviço web poderá ser
+o Dockerfile da raiz; não é GitHub Pages. O repositório continua privado e o serviço web é
 público. URL confirmada pela plataforma: **https://pife-caxeta.onrender.com**; configuração detalhada
 em [docs/hospedagem.md](docs/hospedagem.md). No Render, `RENDER_EXTERNAL_URL` define automaticamente a
 origem autorizada; HTTPS/WSS e forwarded headers são suportados. `render.yaml` especifica plano Free
@@ -172,7 +172,7 @@ O vídeo fica em `output/videos/gameplay.webm`, sem narração. Roteiro de apres
 - Sala expira em 30 minutos sem ações; após expirar, criar outra. Token de reconexão vale duas horas.
 - Desconexão de jogador ativo pausa jogadas; desistentes não impedem a continuação. Antes do início, sair cancela a sala.
   Sala nova exige encerrar a anterior.
-- Máximo de 128 salas e 1.000 sessões. Serviço acadêmico, sem infraestrutura de disponibilidade ou TLS.
+- Máximo de 128 salas e 1.000 sessões. Serviço acadêmico em uma instância; HTTPS/WSS público fornecido pelo Render.
 - O monitor compartilha a região mapeada com o servidor; os clientes web mantêm cópias separadas.
 - A cadeia de ferramentas de desenvolvimento do ESLint apresenta seis alertas moderados em `npm audit`
   nesta data, associados a minimatch. `npm audit --omit=dev` não apontou vulnerabilidades.

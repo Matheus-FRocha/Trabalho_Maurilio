@@ -128,4 +128,5 @@ recuperação com três SYNC limitados, tela transitória e botão manual. Nunca
 Revisor encontrou ainda resposta tardia de criação descartada após timeout visual; correlação de
 criação/entrada agora sobrevive ao timeout e é limpa ao concluir/resetar. Nenhum outro achado.
 Regressões foram observadas RED e GREEN: 13 Vitest e 9 Playwright locais; Maven 33 testes aprovado.
-Validação do JAR, CI da correção e repetição pública ainda em andamento.
+Os nove cenários também passaram no JAR completo servido na porta8080, sem Vite.
+CI da correção e repetição pública ainda em andamento.

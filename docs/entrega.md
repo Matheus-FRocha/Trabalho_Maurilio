@@ -8,8 +8,9 @@
 5. Não incluir .git, .tools, node_modules, target inteiro, runtime, logs ou tokens.
 
 ## Apresentação sugerida (6–8 minutos)
-1. Objetivo e variante aprovada: dois jogadores, nove cartas, três jogos, sem curingas.
-2. Criar sala e mostrar os dois navegadores; cada um recebe apenas a própria mão.
+1. Objetivo e variante aprovada: dois ou quatro jogadores, nove cartas, três jogos, sem curingas.
+   Dois jogadores usam um baralho; quatro usam dois, em jogo individual.
+2. Criar sala e mostrar os navegadores; cada um recebe apenas a própria mão.
 3. Explicar envelope JSON: type, roomId, messageId, version e payload. Mostrar DRAW_CARD.
 4. Mostrar domínio e região crítica no GameService; explicar corrida de duas compras.
 5. Diferenciar heap da JVM, cópias do navegador e sockets de memória compartilhada do SO.
@@ -27,7 +28,7 @@ O término por abandono é diferente da vitória por três jogos, que é coberta
 
 ## Campos do formulário
 - Nomes: preencher nomes reais dos dois integrantes.
-- Nome do jogo: Pife/Caxeta — variante Pife para dois.
+- Nome do jogo: Pife/Caxeta — variante Pife individual para dois ou quatro.
 - Explicação: formar três combinações de três cartas após compra e descarte.
 - Linguagens: Java 21 (servidor/monitor), JavaScript (React).
 - Comunicação: STOMP sobre WebSocket; comandos e snapshots privados JSON versionados.
