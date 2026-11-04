@@ -47,3 +47,12 @@ Nenhum achado bloqueante remanescente após as correções verificadas.
 2410bc3: integração executável, scripts, CI e correções; integrado por fast-forward em develop.
 Gameplay real sem narração gravado em output/videos/gameplay.webm, aproximadamente um minuto.
 Capturas inspecionadas: início desktop/mobile e mesa desktop. Pacotes e push em verificação final.
+
+Pacotes gerados e inspecionados: pife-fontes.zip e pife-com-executavel.zip, SHA-256 em arquivo separado.
+Extração limpa em .tools/package-smoke, iniciar.cmd servindo na 8081: health UP e 3 Playwright verdes.
+monitor.cmd leu o estado público do arquivo mapeado na instalação extraída. Fontes completas nos dois
+ZIPs, nenhum binário no ZIP fonte, LICENSE preservado e nenhuma pasta sensível nos pacotes.
+Vídeo conferido por decodificação: 61,16 segundos, 1440x1080, 25 fps; frame intermediário inspecionado.
+Documentação final inclui requisitos, regras, arquitetura, protocolo, memória, locks, testes,
+cronograma, fontes e roteiro de apresentação/entrega. Nomes/turma, registro do jogo e link público
+do vídeo ficam a cargo da dupla; não foram preenchidos nem publicados em seu nome.

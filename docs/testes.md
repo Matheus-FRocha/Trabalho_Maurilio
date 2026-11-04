@@ -19,6 +19,11 @@ Total Java observado: **22 testes, zero falhas/erros/ignorados**. Frontend: **5 
 **3 testes** de navegador, sem erros de página. ESLint, Prettier e Vite build passaram.
 Os três casos de navegador também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
 sem Vite. GET / retornou HTTP 200 com assets compilados e /api/health retornou UP.
+O ZIP com executável foi extraído em diretório limpo, iniciado pelo iniciar.cmd na porta 8081,
+e os mesmos três testes Playwright passaram. Monitor.cmd também leu o mmap nessa instalação.
+Inspeção dos ZIPs: nenhum arquivo-fonte ausente, nenhuma credencial/runtime/dependência local,
+LICENSE idêntico ao original e nenhum .jar/.class/.exe no ZIP apenas de fontes.
+O vídeo foi decodificado para conferência: 61,16 segundos, VP9/WebM, 1440x1080, 25 fps, sem áudio.
 Os relatórios JUnit são gerados em backend/target/surefire-reports/; traces de falhas em
 frontend/test-results/. Essas pastas são ignoradas no Git; a CI reproduz os checks.
 
