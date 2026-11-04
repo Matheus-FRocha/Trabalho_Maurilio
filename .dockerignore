@@ -1,0 +1,13 @@
+.git
+.tools
+.superpowers
+output
+runtime
+**/node_modules
+**/target
+**/dist
+**/test-results
+**/playwright-report
+**/*.log
+.env*
+!.env.example

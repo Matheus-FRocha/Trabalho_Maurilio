@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pife-caxeta
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: PIFE_SHARED_DIRECTORY
+        value: /app/runtime/shared
