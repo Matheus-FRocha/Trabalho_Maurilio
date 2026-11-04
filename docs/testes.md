@@ -1,0 +1,47 @@
+# Validação executada
+
+Ambiente: Windows, Temurin JDK 21.0.13 local, Maven 3.9.11 wrapper, Node 24.15.0 e npm 11.12.1.
+Data: 03/11/2026. Não há Mockito nos testes porque domínio, transporte e IPC são exercitados de verdade.
+
+## Cobertura e evidências
+| Suíte | Casos e resultados observados |
+|---|---|
+| DomainTest (4) | Baralho único, embaralhamento, trincas/sequências, partições, rejeição Q-K-A/duplicatas |
+| GameServiceTest (10) | Salas, mãos privadas, fases, turno, versão, repetição, corrida 8 threads, vitória, reconexão, expiração, nova sala, isolamento de sala encerrada e monte esgotado |
+| SharedMemoryTest (3) | Segunda JVM lendo mmap, snapshots antigos/slots, leitor bloqueado por FileLock de outro processo |
+| SessionRegistryTest (2) | Token aleatório, token exigido, socket antigo substituído e desconexão antiga sem efeito |
+| SocketSecurityTest (1) | Assinatura alheia e publicação direta no broker recusadas |
+| WebSocketIntegrationTest (2) | Servidor HTTP/socket real, dois jogadores, mãos diferentes, erro de turno e compras/descartes; CONNECT inválido |
+| Vitest (5) | Descartar snapshots antigos e de outras salas, liberar pending/erro, desconectar/ordenar sem mutar a mão, IDs sem randomUUID |
+| Playwright (3) | Duas sessões com sala/turnos/reload/resultado/nova sala; falta de randomUUID; início móvel sem overflow |
+
+Total Java observado: **22 testes, zero falhas/erros/ignorados**. Frontend: **5 testes** unitários e
+**3 testes** de navegador, sem erros de página. ESLint, Prettier e Vite build passaram.
+Os três casos de navegador também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
+sem Vite. GET / retornou HTTP 200 com assets compilados e /api/health retornou UP.
+Os relatórios JUnit são gerados em backend/target/surefire-reports/; traces de falhas em
+frontend/test-results/. Essas pastas são ignoradas no Git; a CI reproduz os checks.
+
+Os testes foram escritos antes do código e executados inicialmente com ausência de implementação.
+Na correção de membership após término, a regressão finishedPlayersCanJoinAnotherRoom foi observada
+falhando com ALREADY_IN_ROOM e passou após liberar a associação. Vitória por combinações tem fixture
+de baralho ordenado injetada apenas no teste; produção embaralha com SecureRandom e não tem endpoint
+para manipular baralho ou mãos. Encerramento completo no navegador usa saída voluntária.
+
+## Problemas encontrados e corrigidos
+- Windows/JDK 21: Selector.open falhava no TEMP abreviado (8.3). Probe mínima reproduziu; diretório
+  temporário canônico local resolveu. env.ps1 aplica ajuste somente aos processos filhos.
+- Broker simples não devolve receipts STOMP usados inicialmente pelo teste. Teste passou a aguardar
+  a resposta real CREATE_ROOM, com preservação de ordem por sessão; sem sleeps para sincronização.
+- Ícone decorativo entrava no nome acessível do botão de entrada. Marcado aria-hidden.
+- Membership da sala finalizada bloqueava nova entrada. Corrigido com teste de regressão.
+- Revisão independente encontrou entrega de snapshot de sala antiga ao participante em sala nova.
+  Teste observou destinatários [a,b] quando deveria ser [b]; corrigido no serviço e com filtro no cliente.
+- randomUUID ausente em HTTP de rede local: helper com getRandomValues, teste unitário e teste de
+  navegador removendo essa API passaram. Não é teste em outro computador físico.
+
+## Limites
+Os testes não comprovam desempenho sob carga ou disponibilidade distribuída. Teste automatizado de
+vitória no navegador por combinações não foi feito; a regra é provada no domínio/serviço. O teste real
+WebSocket usa baralho aleatório, e o de vitória usa fixture local. Alertas moderados de minimatch
+aparecem na cadeia de desenvolvimento do ESLint; npm audit --omit=dev retornou zero vulnerabilidades.
