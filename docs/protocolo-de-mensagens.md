@@ -25,7 +25,7 @@ Campos desconhecidos são rejeitados por Jackson. Payload contém apenas strings
 | DRAW_CARD | source: DECK ou DISCARD | Na vez e fase DRAW |
 | DISCARD_CARD | cardId: ex. H7 | Na vez e fase DISCARD; deve possuir carta |
 | SYNC_ROOM | {} | Apenas membro; restaura presença e snapshot |
-| LEAVE_ROOM | {} | Encerra por abandono; oponente vence se existir |
+| LEAVE_ROOM | {} | WAITING: cancela sem vencedor; PLAYING: adversário vence por abandono |
 
 Cartas: `C` paus, `D` ouros, `H` copas, `S` espadas; rank 1..13. ID é naipe+rank.
 Exemplo: `{ "id":"H7", "rank":7, "suit":"H" }`.
@@ -38,7 +38,8 @@ Não há evento TURN_CHANGED separado: o snapshot atômico evita desencontro ent
 
 Estado: roomId, version, status (WAITING/PLAYING/FINISHED), hostId, turnPlayerId,
 phase (DRAW/DISCARD), players (id/name/cardCount/connected), hand (somente sua mão),
-discardTop, deckCount, winnerId e reason (MELDS/DECK_EMPTY/ABANDONMENT).
+discardTop, deckCount, winnerId e reason (MELDS/DECK_EMPTY/ABANDONMENT/CANCELLED).
+Cancelamento usa status FINISHED e reason CANCELLED; winnerId é nulo. Não equivale a empate.
 
 Erros de domínio incluem NOT_YOUR_TURN, WRONG_PHASE, STALE_STATE, NOT_MEMBER, ROOM_NOT_FOUND,
 ROOM_FULL, HOST_ONLY, CARD_NOT_OWNED, EMPTY_DISCARD e PAUSED. CONNECT inválido e destino proibido geram

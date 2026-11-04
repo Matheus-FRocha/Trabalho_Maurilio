@@ -68,3 +68,20 @@ Código entregue validado em Windows e Linux. Servidor local do JAR mantido na p
 servidor temporário da extração limpa na 8081 encerrado após testes.
 Pacotes finais são regenerados após este registro. Nenhuma atividade de código pendente;
 conferência de nomes/turma, registro do jogo e submissão continuam sob responsabilidade da dupla.
+
+## Revisão solicitada: hospedagem e saída da sala
+Branch temporária feature/room-exit, base 028d123. Confirmadas 8 branches remotas originais:
+main, develop e seis features integradas. Não representam processos ativos; existentes preservadas.
+README ampliado: GitHub Pages serve estáticos e não executa Java ou o backend WebSocket. Não foi
+publicada interface sem servidor; hospedagem pública do JAR completo ainda precisa ser escolhida.
+Fonte: documentação oficial GitHub Pages, consultada nesta revisão e vinculada no README.
+
+Bug reproduzido com dois JUnit falhando (CANCELLED esperado, ABANDONMENT obtido) e três asserts
+de renderização falhando. Corrigido: WAITING + saída -> FINISHED/CANCELLED, sem vencedor/empate;
+PLAYING + saída -> vitória do adversário por ABANDONMENT. A tela só exibe empate para DECK_EMPTY.
+Cancelamento possui tela própria, sem cartas/controles de uma partida que não começou.
+Regressões incluem solo, dois jogadores na espera, nova sala, reload e abandono durante jogo.
+Verificação local: Maven clean verify (24), Vitest (9), Playwright contra JAR (5), lint e formatação
+aprovados. Revisor independente não encontrou achados na correção. JAR local reconstruído e servidor
+reiniciado para servir a versão atual; salas da execução anterior não persistem entre reinícios.
+Corrigido também LF de CSS/HTML/MJS para checks reproduzíveis após checkout no Windows.

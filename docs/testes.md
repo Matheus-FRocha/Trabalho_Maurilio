@@ -7,20 +7,20 @@ Data: 03/11/2026. Não há Mockito nos testes porque domínio, transporte e IPC 
 | Suíte | Casos e resultados observados |
 |---|---|
 | DomainTest (4) | Baralho único, embaralhamento, trincas/sequências, partições, rejeição Q-K-A/duplicatas |
-| GameServiceTest (10) | Salas, mãos privadas, fases, turno, versão, repetição, corrida 8 threads, vitória, reconexão, expiração, nova sala, isolamento de sala encerrada e monte esgotado |
+| GameServiceTest (12) | Salas, mãos privadas, fases, turno, versão, repetição, corrida 8 threads, vitória, reconexão, expiração, nova sala, isolamento de sala encerrada, monte esgotado e cancelamento antes do início com um ou dois jogadores |
 | SharedMemoryTest (3) | Segunda JVM lendo mmap, snapshots antigos/slots, leitor bloqueado por FileLock de outro processo |
 | SessionRegistryTest (2) | Token aleatório, token exigido, socket antigo substituído e desconexão antiga sem efeito |
 | SocketSecurityTest (1) | Assinatura alheia e publicação direta no broker recusadas |
 | WebSocketIntegrationTest (2) | Servidor HTTP/socket real, dois jogadores, mãos diferentes, erro de turno e compras/descartes; CONNECT inválido |
-| Vitest (5) | Descartar snapshots antigos e de outras salas, liberar pending/erro, desconectar/ordenar sem mutar a mão, IDs sem randomUUID |
-| Playwright (3) | Duas sessões com sala/turnos/reload/resultado/nova sala; falta de randomUUID; início móvel sem overflow |
+| Vitest (9) | Snapshots e pending, ordenação, IDs sem randomUUID, cancelamento/empate/abandono e resultado sem motivo conhecido |
+| Playwright (5) | Duas sessões com sala/turnos/reload/resultado/nova sala; falta de randomUUID; início móvel; cancelar sala sozinho ou com dois antes do início |
 
-Total Java observado: **22 testes, zero falhas/erros/ignorados**. Frontend: **5 testes** unitários e
-**3 testes** de navegador, sem erros de página. ESLint, Prettier e Vite build passaram.
-Os três casos de navegador também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
+Total Java observado: **24 testes, zero falhas/erros/ignorados**. Frontend: **9 testes** unitários e
+**5 testes** de navegador, sem erros de página. ESLint, Prettier e Vite build passaram.
+Os cinco casos de navegador também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
 sem Vite. GET / retornou HTTP 200 com assets compilados e /api/health retornou UP.
-O ZIP com executável foi extraído em diretório limpo, iniciado pelo iniciar.cmd na porta 8081,
-e os mesmos três testes Playwright passaram. Monitor.cmd também leu o mmap nessa instalação.
+Na validação da entrega inicial, o ZIP com executável foi extraído em diretório limpo, iniciado
+pelo iniciar.cmd na porta 8081, e os três testes então existentes passaram. Monitor.cmd também leu o mmap.
 Inspeção dos ZIPs: nenhum arquivo-fonte ausente, nenhuma credencial/runtime/dependência local,
 LICENSE idêntico ao original e nenhum .jar/.class/.exe no ZIP apenas de fontes.
 O vídeo foi decodificado para conferência: 61,16 segundos, VP9/WebM, 1440x1080, 25 fps, sem áudio.
@@ -45,6 +45,11 @@ para manipular baralho ou mãos. Encerramento completo no navegador usa saída v
   Teste observou destinatários [a,b] quando deveria ser [b]; corrigido no serviço e com filtro no cliente.
 - randomUUID ausente em HTTP de rede local: helper com getRandomValues, teste unitário e teste de
   navegador removendo essa API passaram. Não é teste em outro computador físico.
+- Saída sozinho na espera mostrava empate: testes Java observaram ABANDONMENT em vez de CANCELLED;
+  React inferia empate de qualquer winnerId nulo. Corrigido para motivo explícito, cancelamento sem
+  mesa fictícia e vitória do adversário apenas durante partida iniciada. Cinco Playwright passaram.
+- Checkout no Windows convertia CSS/HTML/MJS para CRLF e falhava na formatação. Esses formatos
+  passaram a ter LF explícito em .gitattributes; Prettier voltou a passar.
 
 ## Limites
 Os testes não comprovam desempenho sob carga ou disponibilidade distribuída. Teste automatizado de

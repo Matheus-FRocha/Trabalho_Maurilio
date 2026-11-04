@@ -4,6 +4,50 @@ Jogo web de Pife para **dois jogadores em tempo real**, desenvolvido para Sistem
 Servidor Java 21 autoritativo, cliente React, mensagens STOMP/WebSocket, exclusão mútua por sala
 e memória compartilhada real com um monitor em outra JVM. Sem cadastro ou banco de dados.
 
+## Publicação na internet e GitHub Pages
+
+O código está versionado no GitHub. Isso **não hospeda automaticamente o jogo em execução**.
+O [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
+serve arquivos estáticos (HTML, CSS e JavaScript); não executa Java/Spring Boot nem o servidor WebSocket.
+Portanto, **o multiplayer completo não funciona hospedado somente no GitHub Pages**.
+
+| Opção | O que funciona |
+|---|---|
+| Repositório GitHub | Armazena código, documentação e workflow de testes; não mantém o jogo rodando |
+| Apenas GitHub Pages | Pode servir a interface compilada, mas não processa salas nem partidas Java |
+| Servidor com Java 21 e WebSocket | Executa o JAR completo e serve interface, API e partidas no mesmo endereço |
+| Pages + servidor Java externo | Possível após adaptar URLs/base do frontend e configurar as origens; exige as duas hospedagens |
+
+Para este projeto, a opção mais simples é **publicar o JAR completo em um serviço que execute Java 21**.
+O build continua podendo partir do repositório; o processo roda no servidor da hospedagem, não no Git.
+O serviço precisa manter uma instância ativa, aceitar WebSocket e oferecer diretório gravável para os
+arquivos mapeados. Use HTTPS/WSS para acesso público; o proxy deve encaminhar `/ws` com upgrade WebSocket.
+`SERVER_PORT` configura a porta interna, `PIFE_ALLOWED_ORIGINS` as origens exatas autorizadas e
+`PIFE_SHARED_DIRECTORY` a pasta do espelho de memória compartilhada. Evite múltiplas instâncias,
+pois as salas ficam na memória de um único processo; reinícios perdem as partidas.
+
+O frontend atual usa `/api` e `/ws` na mesma origem que o serve. **Não foi configurado deploy em Pages
+nem existe uma URL pública de partidas nesta entrega.** Para hospedar separadamente, ainda seria
+preciso parametrizar a URL da API/WebSocket e ajustar o base path de assets do Pages; apontar para
+localhost faria cada visitante tentar acessar o próprio computador. A hospedagem Java pública ainda
+precisa ser definida; a execução local e pela rede local continua disponível abaixo.
+
+## Branches e integração
+
+A entrega inicial possui 8 branches remotas: `main`, `develop` e 6 branches `feature/*`
+(`backend-core`, `game-rules`, `websocket`, `frontend`, `integration` e `documentation`).
+São referências do histórico Git, não oito servidores ou instalações ativas. As seis funcionalidades
+já foram integradas. É válido mantê-las para rastreabilidade acadêmica ou removê-las após integração;
+o fluxo normal de novas correções é branch temporária -> develop -> main, após os testes.
+
+## Saída, cancelamento e resultado
+
+- **Antes de começar:** sair da sala cancela a espera, esteja sozinho ou com outro jogador.
+  A tela mostra “Sala encerrada”; não há vitória, derrota ou empate porque a partida não começou.
+- **Durante a partida:** clicar em “Sair da partida” é desistência; o adversário vence por abandono.
+- **Conexão perdida ou página recarregada:** a partida pausa para reconexão, sem vitória automática.
+- **Empate:** somente quando o monte acaba após um descarte sem vitória por combinações.
+
 ## Executar no Windows
 
 Pré-requisitos: **JDK 21** (JAVA_HOME), **Node.js 22.12+** e acesso à internet no primeiro build.
@@ -105,7 +149,8 @@ O vídeo fica em `output/videos/gameplay.webm`, sem narração. Roteiro de apres
 - Dois jogadores; sem curingas, reciclagem de descarte, cadastro, pontuação acumulada ou persistência.
 - Reiniciar o servidor perde salas/sessões; recarregar o navegador preserva sessão na mesma aba.
 - Sala expira em 30 minutos sem ações; após expirar, criar outra. Token de reconexão vale duas horas.
-- Desconexão pausa jogadas; saída voluntária encerra por abandono. Sala nova exige encerrar a anterior.
+- Desconexão pausa jogadas; saída durante a partida encerra por abandono. Antes do início, cancela a sala.
+  Sala nova exige encerrar a anterior.
 - Máximo de 128 salas e 1.000 sessões. Serviço acadêmico, sem infraestrutura de disponibilidade ou TLS.
 - O monitor compartilha a região mapeada com o servidor; os clientes web mantêm cópias separadas.
 - A cadeia de ferramentas de desenvolvimento do ESLint apresenta seis alertas moderados em `npm audit`
