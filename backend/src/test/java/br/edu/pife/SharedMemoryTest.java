@@ -35,14 +35,14 @@ class SharedMemoryTest {
         }
     }
     @Test void ignoresOldSnapshotsAndReusesExpiredSlot() throws Exception {
-        var state=new GameView("ABC123",5,"PLAYING","a","b","DRAW",List.of(),List.of(Card.parse("H2")),null,30,null,null);
+        var state=new GameView("ABC123",5,"PLAYING","a","b","DRAW",List.of(),List.of(Card.parse("H2")),null,30,null,null,2,1);
         try(var store=new SharedMemoryStore(directory,new ObjectMapper())) {
             Path file=store.write(state);
-            store.write(new GameView("ABC123",4,"WAITING","a",null,"DRAW",List.of(),List.of(),null,0,null,null));
+            store.write(new GameView("ABC123",4,"WAITING","a",null,"DRAW",List.of(),List.of(),null,0,null,null,2,1));
             assertTrue(SharedMemoryMonitor.read(file).contains("\"version\":5"));
             store.remove("ABC123");
             assertTrue(SharedMemoryMonitor.read(file).contains("EXPIRED"));
-            Path reused=store.write(new GameView("XYZ789",1,"WAITING","x",null,"DRAW",List.of(),List.of(),null,0,null,null));
+            Path reused=store.write(new GameView("XYZ789",1,"WAITING","x",null,"DRAW",List.of(),List.of(),null,0,null,null,2,1));
             assertEquals(file,reused);
             assertTrue(SharedMemoryMonitor.read(file).contains("XYZ789"));
         }

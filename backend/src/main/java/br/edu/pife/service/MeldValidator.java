@@ -23,7 +23,8 @@ public final class MeldValidator {
         return false;
     }
     private static boolean meld(Card a, Card b, Card c) {
-        if (a.rank() == b.rank() && b.rank() == c.rank()) return true;
+        if (a.rank() == b.rank() && b.rank() == c.rank())
+            return !a.suit().equals(b.suit()) && !b.suit().equals(c.suit()) && !a.suit().equals(c.suit());
         if (!a.suit().equals(b.suit()) || !b.suit().equals(c.suit())) return false;
         int[] ranks = {a.rank(), b.rank(), c.rank()};
         Arrays.sort(ranks);

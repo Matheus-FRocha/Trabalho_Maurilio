@@ -10,7 +10,7 @@ import java.security.SecureRandom;
 @Configuration
 public class GameConfig {
     @Bean Clock clock() { return Clock.systemUTC(); }
-    @Bean GameService gameService(Clock clock) { return new GameService(clock,() -> Deck.shuffled(new SecureRandom())); }
+    @Bean GameService gameService(Clock clock) { return new GameService(clock,copies -> Deck.shuffledCopies(copies,new SecureRandom())); }
     @Bean SessionRegistry sessionRegistry(Clock clock) { return new SessionRegistry(clock); }
     @Bean(destroyMethod="close") SharedMemoryStore sharedMemoryStore(@Value("${pife.shared-directory:runtime/shared}") String directory,ObjectMapper mapper) throws Exception {
         return new SharedMemoryStore(Path.of(directory),mapper);

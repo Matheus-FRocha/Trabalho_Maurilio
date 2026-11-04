@@ -2,6 +2,7 @@ package br.edu.pife.service;
 
 import br.edu.pife.dto.*;
 import br.edu.pife.model.Card;
+import br.edu.pife.model.Deck;
 import br.edu.pife.exception.GameException;
 import java.security.SecureRandom;
 import java.time.*;
@@ -9,15 +10,17 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
+import java.util.function.IntFunction;
 
 /** All mutable room fields are read/written only while its lock is held. No network I/O here. */
 public class GameService {
     private final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> membership = new ConcurrentHashMap<>();
     private final Clock clock;
-    private final Supplier<List<Card>> decks;
+    private final IntFunction<List<Card>> decks;
     private final SecureRandom random = new SecureRandom();
-    public GameService(Clock clock, Supplier<List<Card>> decks) { this.clock=clock; this.decks=decks; }
+    public GameService(Clock clock, Supplier<List<Card>> decks) { this(clock,copies -> decks.get()); }
+    public GameService(Clock clock, IntFunction<List<Card>> decks) { this.clock=clock; this.decks=decks; }
 
     public List<Delivery> handle(String player, Command command) {
         require(player != null && !player.isBlank(), "IDENTITY", "Sessão inválida.");
@@ -36,7 +39,12 @@ public class GameService {
             if("FINISHED".equals(room.status)) {
                 require("SYNC_ROOM".equals(command.type()) || room.processed.contains(player+":"+command.messageId()),
                     "NOT_PLAYING","A partida já foi encerrada.");
-                return snapshot(room,command.messageId()).stream().filter(d -> d.playerId().equals(player)).toList();
+                return privateSnapshot(room,command.messageId(),player);
+            }
+            if(!room.players.get(player).active) {
+                require("SYNC_ROOM".equals(command.type()) || room.processed.contains(player+":"+command.messageId()),
+                    "PLAYER_LEFT","Você já saiu desta partida.");
+                return privateSnapshot(room,command.messageId(),player);
             }
             if ("SYNC_ROOM".equals(command.type())) {
                 var member=room.players.get(player);
@@ -59,7 +67,7 @@ public class GameService {
             room.version++;
             room.touched=clock.instant();
             if("FINISHED".equals(room.status)) room.players.keySet().forEach(p -> membership.remove(p,room.id));
-            return snapshot(room,command.messageId());
+            return snapshot(room,command.messageId(),player);
         } finally { room.lock.unlock(); }
     }
     private synchronized List<Delivery> create(String player, Command command) {
@@ -77,9 +85,12 @@ public class GameService {
         }
         require(rooms.size()<128,"CAPACITY","Servidor cheio. Tente novamente depois.");
         String name=name(command);
+        String capacity=command.value("maxPlayers");
+        require(capacity==null || Set.of("2","4").contains(capacity),"CAPACITY","Escolha uma mesa de 2 ou 4 jogadores.");
+        int maxPlayers=capacity==null?2:Integer.parseInt(capacity);
         String id;
         do { id=String.format("%06X",random.nextInt(0x1000000)); } while(rooms.containsKey(id));
-        var room=new Room(id,player,clock.instant(),command.messageId());
+        var room=new Room(id,player,clock.instant(),command.messageId(),maxPlayers);
         room.players.put(player,new Player(name));
         room.lock.lock();
         try {
@@ -89,8 +100,11 @@ public class GameService {
         } finally { room.lock.unlock(); }
     }
     private List<Delivery> join(Room room,String player,Command command) {
-        if(room.players.containsKey(player)) return snapshot(room,command.messageId());
-        require("WAITING".equals(room.status) && room.players.size()<2,"ROOM_FULL","Sala cheia ou já iniciada.");
+        if(room.players.containsKey(player)) {
+            require(room.players.get(player).active,"PLAYER_LEFT","Você já saiu desta partida.");
+            return privateSnapshot(room,command.messageId(),player);
+        }
+        require("WAITING".equals(room.status) && room.players.size()<room.maxPlayers,"ROOM_FULL","Sala cheia ou já iniciada.");
         String name=name(command);
         require(membership.putIfAbsent(player,room.id)==null,"ALREADY_IN_ROOM","Jogador já está em outra sala.");
         room.players.put(player,new Player(name));
@@ -105,10 +119,11 @@ public class GameService {
     }
     private void start(Room room,String player) {
         require(room.host.equals(player),"HOST_ONLY","Somente quem criou a sala pode iniciar.");
-        require("WAITING".equals(room.status) && room.players.size()==2,"NOT_READY","Aguarde os dois jogadores.");
+        require("WAITING".equals(room.status) && room.players.size()==room.maxPlayers,"NOT_READY","Aguarde todos os jogadores da mesa.");
         connected(room);
-        var deck=new ArrayDeque<>(decks.get());
-        require(deck.size()==52 && new HashSet<>(deck).size()==52,"DECK","Baralho inválido.");
+        var deck=new ArrayDeque<>(decks.apply(room.maxPlayers/2));
+        var expected=new HashSet<>(Deck.forCopies(room.maxPlayers/2));
+        require(deck.size()==expected.size() && new HashSet<>(deck).equals(expected),"DECK","Baralho inválido.");
         room.deck=deck;
         for(var member:room.players.values()) for(int i=0;i<9;i++) member.hand.add(room.deck.removeFirst());
         room.discards.add(room.deck.removeFirst());
@@ -122,7 +137,7 @@ public class GameService {
         require(phase.equals(room.phase),"WRONG_PHASE",phase.equals("DRAW") ? "Descarte uma carta primeiro." : "Compre uma carta primeiro.");
     }
     private void connected(Room room) {
-        require(room.players.values().stream().allMatch(p -> p.connected),"PAUSED","Aguardando reconexão do adversário.");
+        require(room.players.values().stream().filter(p -> p.active).allMatch(p -> p.connected),"PAUSED","Aguardando reconexão de um participante.");
     }
     private void draw(Room room,String player,String source) {
         turn(room,player,"DRAW");
@@ -147,16 +162,34 @@ public class GameService {
         } else if(room.deck.isEmpty()) {
             room.status="FINISHED"; room.reason="DECK_EMPTY";
         } else {
-            room.turn=room.players.keySet().stream().filter(p -> !p.equals(player)).findFirst().orElseThrow();
+            room.turn=nextPlayer(room,player);
         }
         room.phase="DRAW";
     }
     private void leave(Room room,String player) {
         require(!"FINISHED".equals(room.status),"FINISHED","Partida já encerrada.");
-        boolean started="PLAYING".equals(room.status);
-        room.status="FINISHED"; room.reason=started?"ABANDONMENT":"CANCELLED";
-        room.winner=started?room.players.keySet().stream().filter(p -> !p.equals(player)).findFirst().orElse(null):null;
-        room.players.get(player).connected=false;
+        var member=room.players.get(player);
+        member.active=false; member.connected=false;
+        membership.remove(player,room.id);
+        if("WAITING".equals(room.status)) {
+            room.status="FINISHED"; room.reason="CANCELLED";
+            return;
+        }
+        var remaining=room.players.entrySet().stream().filter(e -> e.getValue().active).map(Map.Entry::getKey).toList();
+        if(remaining.size()==1) {
+            room.status="FINISHED"; room.reason="ABANDONMENT"; room.winner=remaining.getFirst();
+        } else if(player.equals(room.turn)) {
+            room.turn=nextPlayer(room,player); room.phase="DRAW";
+        }
+    }
+    private String nextPlayer(Room room,String current) {
+        var order=new ArrayList<>(room.players.keySet());
+        int start=order.indexOf(current);
+        for(int offset=1;offset<=order.size();offset++) {
+            String candidate=order.get((start+offset)%order.size());
+            if(room.players.get(candidate).active) return candidate;
+        }
+        throw new IllegalStateException("No active participant");
     }
     public List<Delivery> disconnect(String player) {
         var id=membership.get(player);
@@ -165,7 +198,7 @@ public class GameService {
         room.lock.lock();
         try {
             var member=room.players.get(player);
-            if(member==null || !member.connected) return List.of();
+            if(member==null || !member.active || !member.connected) return List.of();
             member.connected=false; room.version++;
             return snapshot(room,null);
         } finally { room.lock.unlock(); }
@@ -185,10 +218,17 @@ public class GameService {
     }
     public boolean containsRoom(String roomId) { return rooms.containsKey(roomId); }
     private List<Delivery> snapshot(Room room,String messageId) {
-        var players=room.players.entrySet().stream().map(e -> new PlayerView(e.getKey(),e.getValue().name,e.getValue().hand.size(),e.getValue().connected)).toList();
-        return room.players.entrySet().stream().map(entry -> {
+        return snapshot(room,messageId,null);
+    }
+    private List<Delivery> privateSnapshot(Room room,String messageId,String player) {
+        return snapshot(room,messageId,player).stream().filter(d -> d.playerId().equals(player)).toList();
+    }
+    private List<Delivery> snapshot(Room room,String messageId,String requester) {
+        var players=room.players.entrySet().stream().map(e -> new PlayerView(e.getKey(),e.getValue().name,
+            e.getValue().active?e.getValue().hand.size():0,e.getValue().connected,e.getValue().active)).toList();
+        return room.players.entrySet().stream().filter(e -> e.getValue().active || e.getKey().equals(requester)).map(entry -> {
             var view=new GameView(room.id,room.version,room.status,room.host,room.turn,room.phase,players,
-                List.copyOf(entry.getValue().hand),room.discards.isEmpty()?null:room.discards.getLast(),room.deck.size(),room.winner,room.reason);
+                List.copyOf(entry.getValue().hand),room.discards.isEmpty()?null:room.discards.getLast(),room.deck.size(),room.winner,room.reason,room.maxPlayers,room.maxPlayers/2);
             return new Delivery(entry.getKey(),new Event("FINISHED".equals(room.status)?"GAME_FINISHED":"GAME_STATE_UPDATED",messageId,room.id,room.version,view,null,null));
         }).toList();
     }
@@ -199,11 +239,13 @@ public class GameService {
         private final String name;
         private final List<Card> hand=new ArrayList<>();
         private boolean connected=true;
+        private boolean active=true;
         private Player(String name) { this.name=name; }
     }
     private static final class Room {
         private final ReentrantLock lock=new ReentrantLock();
         private final String id,host,createMessage;
+        private final int maxPlayers;
         private final LinkedHashMap<String,Player> players=new LinkedHashMap<>();
         private final LinkedHashSet<String> processed=new LinkedHashSet<>();
         private ArrayDeque<Card> deck=new ArrayDeque<>();
@@ -211,8 +253,8 @@ public class GameService {
         private String status="WAITING",phase="DRAW",turn,winner,reason;
         private long version=1;
         private Instant touched;
-        private Room(String id,String host,Instant now,String createMessage) {
-            this.id=id; this.host=host; this.touched=now; this.createMessage=createMessage;
+        private Room(String id,String host,Instant now,String createMessage,int maxPlayers) {
+            this.id=id; this.host=host; this.touched=now; this.createMessage=createMessage; this.maxPlayers=maxPlayers;
         }
     }
 }

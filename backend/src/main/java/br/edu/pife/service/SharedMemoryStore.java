@@ -37,6 +37,7 @@ public final class SharedMemoryStore implements AutoCloseable {
         data.put("status",state.status()); data.put("turnPlayerId",state.turnPlayerId()); data.put("phase",state.phase());
         data.put("players",state.players()); data.put("deckCount",state.deckCount()); data.put("discardTop",state.discardTop());
         data.put("winnerId",state.winnerId()); data.put("reason",state.reason());
+        data.put("maxPlayers",state.maxPlayers()); data.put("deckCopies",state.deckCopies());
         write(slot,mapper.writeValueAsBytes(data)); slot.version=state.version();
         return slot.path;
     }
