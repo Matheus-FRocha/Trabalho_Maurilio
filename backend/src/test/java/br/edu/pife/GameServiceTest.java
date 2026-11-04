@@ -98,6 +98,31 @@ class GameServiceTest {
         var ended=send("a","LEAVE_ROOM",state.roomId(),back.version(),Map.of());
         assertEquals("FINISHED",ended.status());
         assertEquals("b",ended.winnerId());
+        assertEquals("ABANDONMENT",ended.reason());
+    }
+    @Test void leavingAloneCancelsWaitingRoomWithoutDrawOrWinner() {
+        var created=send("a","CREATE_ROOM",null,null,Map.of("name","Ana"));
+        var command=cmd("LEAVE_ROOM",created.roomId(),created.version(),Map.of());
+        var ended=service.handle("a",command).getFirst().event().state();
+        assertEquals("FINISHED",ended.status());
+        assertEquals("CANCELLED",ended.reason());
+        assertNull(ended.winnerId());
+        assertTrue(ended.hand().isEmpty());
+        assertEquals(ended.version(),service.handle("a",command).getFirst().event().version());
+        assertNotEquals(created.roomId(),send("a","CREATE_ROOM",null,null,Map.of("name","Ana")).roomId());
+    }
+    @Test void leavingBeforeStartCancelsForBothWithoutAwardingVictory() {
+        var created=send("a","CREATE_ROOM",null,null,Map.of("name","Ana"));
+        var joined=send("b","JOIN_ROOM",created.roomId(),null,Map.of("name","Beto"));
+        var deliveries=service.handle("b",cmd("LEAVE_ROOM",joined.roomId(),joined.version(),Map.of()));
+        assertEquals(2,deliveries.size());
+        for(var delivery:deliveries) {
+            assertEquals("CANCELLED",delivery.event().state().reason());
+            assertNull(delivery.event().state().winnerId());
+            assertTrue(delivery.event().state().hand().isEmpty());
+        }
+        assertNotNull(send("a","CREATE_ROOM",null,null,Map.of("name","Ana")));
+        assertNotNull(send("b","CREATE_ROOM",null,null,Map.of("name","Beto")));
     }
     @Test void expiresIdleRoomsAndReleasesPlayerMembership() {
         var now=Instant.parse("2026-11-03T12:00:00Z");

@@ -153,8 +153,9 @@ public class GameService {
     }
     private void leave(Room room,String player) {
         require(!"FINISHED".equals(room.status),"FINISHED","Partida já encerrada.");
-        room.status="FINISHED"; room.reason="ABANDONMENT";
-        room.winner=room.players.keySet().stream().filter(p -> !p.equals(player)).findFirst().orElse(null);
+        boolean started="PLAYING".equals(room.status);
+        room.status="FINISHED"; room.reason=started?"ABANDONMENT":"CANCELLED";
+        room.winner=started?room.players.keySet().stream().filter(p -> !p.equals(player)).findFirst().orElse(null):null;
         room.players.get(player).connected=false;
     }
     public List<Delivery> disconnect(String player) {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card } from "../components/Card";
 import { Rules } from "../components/Rules";
+import { Result } from "../components/Result";
 import { sortCards } from "../utils/gameState";
 export function Table({ game }) {
   const state = game.view,
@@ -15,7 +16,6 @@ export function Table({ game }) {
   const canDraw = !locked && mine && state.phase === "DRAW",
     canDiscard = !locked && mine && state.phase === "DISCARD";
   const hand = sorted ? sortCards(state.hand) : state.hand;
-  const winner = state.players.find((p) => p.id === state.winnerId);
   const hint = finished
     ? "A mesa guarda uma boa história."
     : paused
@@ -122,29 +122,7 @@ export function Table({ game }) {
         </div>
         {finished && (
           <div className="result-overlay">
-            <div className="result-box">
-              <span className="result-symbol">
-                {state.winnerId === game.playerId ? "♛" : "♠"}
-              </span>
-              <div className="panel-kicker">FIM DE PARTIDA</div>
-              <h2>
-                {state.winnerId === game.playerId
-                  ? "Você venceu!"
-                  : state.winnerId
-                    ? "Partida encerrada"
-                    : "Deu empate."}
-              </h2>
-              <p>
-                {state.reason === "MELDS"
-                  ? `${winner?.name} fechou os três jogos.`
-                  : state.reason === "ABANDONMENT"
-                    ? "A partida terminou por saída de um jogador."
-                    : "O monte de compra chegou ao fim."}
-              </p>
-              <button className="button button-gold" onClick={game.reset}>
-                Voltar ao início <span>↗</span>
-              </button>
-            </div>
+            <Result game={game} />
           </div>
         )}
       </section>

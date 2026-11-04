@@ -53,6 +53,12 @@ test("two independent players join, draw, discard, reconnect and finish", async 
   await a.getByRole("button", { name: "Sair da partida" }).click();
   await expect(b.getByRole("heading", { name: "Você venceu!" })).toBeVisible();
   await expect(
+    b.getByText("Ana saiu da partida. Você venceu por abandono."),
+  ).toBeVisible();
+  await expect(
+    a.getByText("Você saiu da partida. Beto venceu por abandono."),
+  ).toBeVisible();
+  await expect(
     a.getByRole("heading", { name: "Partida encerrada" }),
   ).toBeVisible();
   await a.getByRole("button", { name: "Voltar ao início" }).click();

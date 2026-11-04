@@ -16,9 +16,10 @@ export function Rules() {
         </p>
         <p>
           Dois jogadores · 52 cartas · Sem curingas · Ás apenas baixo (A-2-3). O
-          criador joga primeiro. Monte esgotado encerra em empate; sair concede
-          a vitória ao adversário. A partida pausa se alguém desconectar. Sala
-          expira após 30 minutos sem ação.
+          criador joga primeiro. Monte esgotado encerra em empate. Sair antes do
+          início cancela a sala; sair durante a partida concede a vitória ao
+          adversário. A partida pausa se alguém desconectar. Sala expira após 30
+          minutos sem ação.
         </p>
       </div>
     </details>

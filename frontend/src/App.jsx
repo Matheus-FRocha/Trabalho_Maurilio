@@ -2,6 +2,7 @@ import { useGame } from "./hooks/useGame";
 import { Home } from "./pages/Home";
 import { Room } from "./pages/Room";
 import { Table } from "./pages/Table";
+import { Result } from "./components/Result";
 export default function App() {
   const game = useGame();
   return (
@@ -40,6 +41,13 @@ export default function App() {
         <Home game={game} />
       ) : game.view.status === "WAITING" ? (
         <Room game={game} />
+      ) : game.view.status === "FINISHED" &&
+        game.view.reason === "CANCELLED" ? (
+        <main className="waiting-page">
+          <section className="waiting-panel mt-10">
+            <Result game={game} />
+          </section>
+        </main>
       ) : (
         <Table game={game} />
       )}

@@ -77,7 +77,7 @@ export function Room({ game }) {
           disabled={disabled}
           onClick={() => game.send("LEAVE_ROOM")}
         >
-          Sair da partida
+          Sair da sala
         </button>
       </section>
       <Rules />
