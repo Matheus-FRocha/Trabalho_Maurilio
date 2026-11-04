@@ -39,8 +39,13 @@ ou pelo job de CI, que executa outro processo Java no mesmo contêiner e lê as 
 O servidor público escreve snapshots; o navegador continua usando sockets, sem acesso ao mmap.
 
 ## Estado da publicação
-A URL e o resultado do smoke público serão registrados após a confirmação do serviço pelo Render.
-Não interpretar um Dockerfile ou um build da CI como prova de que o jogo já está na internet.
+URL pública: **https://pife-caxeta.onrender.com**. Plataforma confirmou Live em 04/11/2026,
+serviço `srv-dblh5d3ncjis73drmr40`, Docker/Free, branch main, commit de aplicação/documentação 8472493.
+Primeiro deploy `dep-dblh5djncjis73drmrlg`; atualização automática do mesmo commit
+`dep-dblh6qnavr4c73cs2nmg`, também Live. Repositório mantido privado.
+Painel: https://dashboard.render.com/web/srv-dblh5d3ncjis73drmr40
+HTTP `/` retornou 200 com assets compilados e `/api/health` retornou UP na URL pública.
+O resultado do teste de partidas públicas é registrado em docs/testes.md após sua execução.
 
 Fontes consultadas em 04/11/2026:
 - https://render.com/docs/docker

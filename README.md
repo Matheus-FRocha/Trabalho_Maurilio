@@ -4,6 +4,9 @@ Jogo web de Pife para **2 ou 4 jogadores em tempo real**, desenvolvido para Sist
 Servidor Java 21 autoritativo, cliente React, mensagens STOMP/WebSocket, exclusão mútua por sala
 e memória compartilhada real com um monitor em outra JVM. Sem cadastro ou banco de dados.
 
+**Jogar online:** [https://pife-caxeta.onrender.com](https://pife-caxeta.onrender.com) — Render Free,
+Java 21 e WebSocket WSS. Primeiro acesso após inatividade pode levar cerca de um minuto.
+
 ## Publicação na internet e GitHub Pages
 
 O código está versionado no GitHub. Isso **não hospeda automaticamente o jogo em execução**.
@@ -26,9 +29,9 @@ arquivos mapeados. Use HTTPS/WSS para acesso público; o proxy deve encaminhar `
 `PIFE_SHARED_DIRECTORY` a pasta do espelho de memória compartilhada. Evite múltiplas instâncias,
 pois as salas ficam na memória de um único processo; reinícios perdem as partidas.
 
-O frontend usa `/api` e `/ws` na mesma origem. A publicação preparada é no **Render**, executando
+O frontend usa `/api` e `/ws` na mesma origem. A publicação está no **Render**, executando
 o Dockerfile da raiz; não é GitHub Pages. O repositório continua privado e o serviço web poderá ser
-público. A URL só será registrada após a plataforma confirmar a implantação; configuração detalhada
+público. URL confirmada pela plataforma: **https://pife-caxeta.onrender.com**; configuração detalhada
 em [docs/hospedagem.md](docs/hospedagem.md). No Render, `RENDER_EXTERNAL_URL` define automaticamente a
 origem autorizada; HTTPS/WSS e forwarded headers são suportados. `render.yaml` especifica plano Free
 e deploy após checks. A confirmação da conta é feita fora do código, sem tokens no repositório.

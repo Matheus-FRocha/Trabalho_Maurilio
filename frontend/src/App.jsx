@@ -38,17 +38,32 @@ export default function App() {
       {game.error && (
         <div className="error-banner" role="alert">
           <span>{game.error}</span>
-          {game.view && (
-            <button onClick={() => game.send("SYNC_ROOM")}>
-              Sincronizar sala
-            </button>
+          {(game.view || game.hasRoom) && (
+            <button onClick={game.sync}>Sincronizar sala</button>
           )}
           {game.status !== "online" && (
             <button onClick={game.restart}>Reiniciar conexão</button>
           )}
         </div>
       )}
-      {home ? (
+      {game.recovering ? (
+        <main className="waiting-page">
+          <section className="waiting-panel mt-10">
+            <div className="result-box">
+              <div className="panel-kicker">RETOMANDO A CONEXÃO</div>
+              <h2>Recuperando sua mesa…</h2>
+              <p>Aguardando o estado atualizado da sua sala.</p>
+              <button
+                className="button button-gold"
+                disabled={game.status !== "online"}
+                onClick={game.sync}
+              >
+                Tentar sincronizar
+              </button>
+            </div>
+          </section>
+        </main>
+      ) : home ? (
         <Home game={game} />
       ) : game.view.status === "WAITING" ? (
         <Room game={game} />

@@ -14,13 +14,14 @@ Atualização: 04/11/2026. Não há Mockito nos testes porque domínio, transpor
 | WebSocketIntegrationTest (2) | Servidor HTTP/socket real, dois jogadores, mãos diferentes, erro de turno e compras/descartes; CONNECT inválido |
 | FourPlayerTest (8) | 104 IDs físicos, faces duplicadas/trincas, vagas, distribuição privada, quatro turnos, desistência e último participante, nova sala e SYNC antigo |
 | PublicOriginIntegrationTest (1) | Origem pública RENDER_EXTERNAL_URL permitida; origem diferente recusada |
-| Vitest (10) | Snapshots e pending, ordenação, IDs, cancelamento/empate/abandono e resultado de quem saiu enquanto outros continuam |
-| Playwright (7) | Dois ou quatro contextos, turnos, logo sem reload/desistência, retomada/reload, desistentes, nova sala, mobile e cancelamento |
+| Vitest (13) | Snapshots e pending, ordenação, IDs, resultados, recuperação limitada, confirmação e cancelamento de timers |
+| Playwright (9) | Dois ou quatro contextos, turnos, logo, retomada/reload, desistentes, nova sala, mobile, cancelamento, resposta de criação atrasada e primeira resposta SYNC perdida |
 
-Total Java observado: **33 testes, zero falhas/erros/ignorados**. Frontend: **10 testes** unitários e
-**7 testes** de navegador, sem erros de página. ESLint, Prettier e Vite build passaram.
-Os sete casos de navegador também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
-sem Vite. GET / retornou HTTP 200 com assets compilados e /api/health retornou UP.
+Total Java observado: **33 testes, zero falhas/erros/ignorados**. Frontend: **13 testes** unitários e
+**9 testes** de navegador no ambiente de desenvolvimento. ESLint, Prettier e Vite build passaram.
+Os sete casos anteriores também passaram contra o frontend servido pelo JAR (PIFE_BASE_URL=8080),
+sem Vite; os nove casos ampliados estão em verificação no JAR e na publicação. GET / retornou
+HTTP 200 com assets compilados e /api/health retornou UP.
 Na validação da entrega inicial, o ZIP com executável foi extraído em diretório limpo, iniciado
 pelo iniciar.cmd na porta 8081, e os três testes então existentes passaram. Monitor.cmd também leu o mmap.
 Inspeção dos ZIPs: nenhum arquivo-fonte ausente, nenhuma credencial/runtime/dependência local,
@@ -58,6 +59,15 @@ para manipular baralho ou mãos. Encerramento completo no navegador usa saída v
 - Mesa de quatro: testes asseguram que desistente não recebe eventos futuros da sala antiga,
   não volta a ficar ativo via SYNC e pode criar outra sala sem interferência. Ás baixo e trincas de
   naipes distintos foram mantidos com cartas físicas repetidas nos dois baralhos.
+- Primeiro teste público: seis de sete casos passaram, incluindo quatro jogadores; recarregar
+  dois jogadores falhou intermitentemente. Frames sanitizados comprovaram SYNC enviado sem
+  resposta por dez segundos, apesar do socket conectado. A origem exata da perda não foi provada.
+  Cliente agora repete somente SYNC, até três tentativas com intervalo de 1,5 segundo, mostra
+  recuperação e oferece tentativa manual. Compras, descartes, criação e entrada não são repetidos.
+  Teste com socket real retém a primeira resposta e comprova recuperação pela segunda.
+- Revisão encontrou resposta de criação após timeout visual sendo descartada. E2E reproduziu
+  falha após reter a resposta por oito segundos; correlação de criação/entrada foi preservada
+  separadamente do pending visual. Os testes novos foram observados RED e GREEN.
 
 ## Limites
 Os testes não comprovam desempenho sob carga ou disponibilidade distribuída. Teste automatizado de

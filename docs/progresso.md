@@ -115,3 +115,17 @@ Usuário entrou no Render e autorizou GitHub somente para Trabalho_Maurilio; rep
 privado. Painel configurado para Docker/main, plano Free ($0/mês), health /api/health,
 diretório /app/runtime/shared e deploy após CI. Nenhum serviço pago ou banco foi contratado.
 URL e evidência pública serão registradas após a implantação realmente confirmar sucesso.
+
+Render confirmou Live em https://pife-caxeta.onrender.com, serviço srv-dblh5d3ncjis73drmr40,
+Docker/main/Free. CI dos commits de aplicação/documentação aprovada, incluindo imagem executada,
+sete Playwright no contêiner e leitura mmap por segunda JVM:
+https://github.com/Matheus-FRocha/Trabalho_Maurilio/actions/runs/41819067377
+
+Na web, seis dos sete testes passaram, incluindo quatro jogadores, mas houve perda intermitente
+da primeira resposta SYNC no reload. Diagnóstico preservou somente metadados dos frames, sem tokens
+ou mãos. Não foi demonstrada a causa exata no transporte. Branch feature/reconnect-recovery adiciona
+recuperação com três SYNC limitados, tela transitória e botão manual. Nunca reenvia ações de jogo.
+Revisor encontrou ainda resposta tardia de criação descartada após timeout visual; correlação de
+criação/entrada agora sobrevive ao timeout e é limpa ao concluir/resetar. Nenhum outro achado.
+Regressões foram observadas RED e GREEN: 13 Vitest e 9 Playwright locais; Maven 33 testes aprovado.
+Validação do JAR, CI da correção e repetição pública ainda em andamento.

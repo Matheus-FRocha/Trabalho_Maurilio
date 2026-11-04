@@ -23,7 +23,12 @@ describe("state received from server", () => {
       version: 5,
       hand: [{ id: "H2", suit: "H", rank: 2 }],
     };
-    const current = { ...initialState, view: latest, pending: "new-command" };
+    const current = {
+      ...initialState,
+      view: latest,
+      pending: "new-command",
+      recovering: true,
+    };
     const result = gameReducer(current, {
       type: "EVENT",
       event: {
@@ -33,6 +38,7 @@ describe("state received from server", () => {
     });
     expect(result.view).toBe(latest);
     expect(result.pending).toBe("new-command");
+    expect(result.recovering).toBe(false);
   });
   it("releases matching pending action and displays server rejection", () => {
     const result = gameReducer(

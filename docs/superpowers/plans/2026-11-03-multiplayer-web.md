@@ -13,24 +13,24 @@ conta/plano de hospedagem realmente disponíveis e nenhuma credencial versionada
 Arquivos: Card/Deck/MeldValidator, DTOs, GameService/GameConfig e testes.
 Interface: CREATE_ROOM.payload.maxPlayers (string 2/4, padrão2); maxPlayers/deckCopies no estado;
 PlayerView.active. Deck.forCopies(int), shuffledCopies(int,Random); IntFunction de decks no serviço.
-- [ ] Testar RED: 104 IDs, naipes distintos, 4 vagas/9 cartas, rotação, desistência e isolamento.
-- [ ] Implementar e executar Maven test GREEN, revisar e commit.
+- [x] Testar RED: 104 IDs, naipes distintos, 4 vagas/9 cartas, rotação, desistência e isolamento.
+- [x] Implementar e executar Maven test GREEN, revisar e commit.
 
 ### Task 2: Cliente, navegação e visual
 Arquivos: App/useGame/Home/Room/Table/Result/Rules, CSS, componentes/tests/e2e.
 Interface: ir ao início preserva sessão; Retomar usa view atual; criar/entrar bloqueados se em jogo.
-- [ ] Testar logo sem reload/desistência, criação4 e quatro clientes.
-- [ ] Implementar seleção2/4, status dos três adversários, resultado de desistente e tema azul/coral.
-- [ ] Vitest/lint/format/build/Playwright desktop e mobile; inspecionar capturas, commit.
+- [x] Testar logo sem reload/desistência, criação4 e quatro clientes.
+- [x] Implementar seleção2/4, status dos três adversários, resultado de desistente e tema azul/coral.
+- [x] Vitest/lint/format/build/Playwright desktop e mobile; inspecionar capturas, commit.
 
 ### Task 3: Hospedagem
 Arquivos: Dockerfile, .dockerignore, render.yaml, application.properties, docs/README.
-- [ ] Consultar APIs/configurações oficiais/Context7 e preparar deploy que execute Java21.
-- [ ] Validar origem pública, PORT e forwarded headers; preservar mmap em diretório gravável.
+- [x] Consultar APIs/configurações oficiais/Context7 e preparar deploy que execute Java21.
+- [x] Validar origem pública, PORT e forwarded headers; preservar mmap em diretório gravável.
 - [ ] Publicar em Render após acesso confirmado e verificar URL/partida real na web.
 
 ### Task 4: Revisão e entrega
-- [ ] Revisão independente, regressões e suítes completas; documentar regras/resultados reais.
+- [x] Revisão independente, regressões e suítes completas; documentar regras/resultados reais.
 - [ ] Integrar develop/main, push/CI, pacotes e confirmar acesso público ou bloqueio concreto.
 
 Autonomia de execução e Git já concedidas; trabalhar nesta raiz, preservar LICENSE e origin.
