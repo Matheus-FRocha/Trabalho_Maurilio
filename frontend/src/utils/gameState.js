@@ -1,4 +1,5 @@
 export const initialState = {
+  page: "room",
   view: null,
   status: "connecting",
   error: "",
@@ -7,6 +8,8 @@ export const initialState = {
 };
 export function gameReducer(state, action) {
   switch (action.type) {
+    case "NAVIGATE":
+      return { ...state, page: action.page };
     case "IDENTITY":
       return { ...state, playerId: action.playerId };
     case "CONNECTION":
@@ -16,7 +19,7 @@ export function gameReducer(state, action) {
     case "ERROR":
       return { ...state, error: action.message, pending: null };
     case "CLEAR":
-      return { ...state, view: null, error: "", pending: null };
+      return { ...state, view: null, error: "", pending: null, page: "home" };
     case "EVENT": {
       const event = action.event;
       const pending = event.messageId === state.pending ? null : state.pending;

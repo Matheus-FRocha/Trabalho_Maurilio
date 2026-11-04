@@ -6,7 +6,8 @@ export function Room({ game }) {
     [copied, setCopied] = useState(false);
   const host = state.hostId === game.playerId;
   const ready =
-    state.players.length === 2 && state.players.every((p) => p.connected);
+    state.players.length === state.maxPlayers &&
+    state.players.every((p) => p.connected);
   const disabled = game.status !== "online" || !!game.pending;
   async function copy() {
     try {
@@ -21,7 +22,11 @@ export function Room({ game }) {
       <div className="section-heading">
         <div className="eyebrow">SUA MESA PARTICULAR</div>
         <h1>Melhor com companhia.</h1>
-        <p>Convide alguém para ocupar o outro lado da mesa.</p>
+        <p>
+          {state.players.length} de {state.maxPlayers} jogadores ·{" "}
+          {state.deckCopies === 1 ? "1 baralho" : "2 baralhos"} · 9 cartas por
+          pessoa
+        </p>
       </div>
       <section className="waiting-panel">
         <div className="invite-block">
@@ -32,7 +37,7 @@ export function Room({ game }) {
           </button>
         </div>
         <div className="seat-list">
-          {[0, 1].map((index) => {
+          {Array.from({ length: state.maxPlayers }, (_, index) => {
             const player = state.players[index];
             return (
               <div className={`seat ${player ? "occupied" : ""}`} key={index}>
@@ -69,7 +74,7 @@ export function Room({ game }) {
           <p className="waiting-message">
             {ready
               ? "Tudo pronto. Aguardando o anfitrião começar…"
-              : "Aguardando o outro jogador reconectar…"}
+              : `Aguardando os ${state.maxPlayers} participantes da mesa…`}
           </p>
         )}
         <button

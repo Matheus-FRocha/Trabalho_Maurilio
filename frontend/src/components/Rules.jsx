@@ -15,11 +15,16 @@ export function Rules() {
           automaticamente.
         </p>
         <p>
-          Dois jogadores · 52 cartas · Sem curingas · Ás apenas baixo (A-2-3). O
-          criador joga primeiro. Monte esgotado encerra em empate. Sair antes do
-          início cancela a sala; sair durante a partida concede a vitória ao
-          adversário. A partida pausa se alguém desconectar. Sala expira após 30
-          minutos sem ação.
+          Dois jogadores usam 1 baralho; quatro usam 2. Nove cartas por pessoa,
+          sem curingas, ás baixo (A-2-3). Trincas exigem três naipes distintos.
+          O criador joga primeiro, na ordem de entrada. Monte esgotado encerra
+          em empate.
+        </p>
+        <p>
+          Antes do início, sair cancela a sala. Na partida de dois, desistir dá
+          vitória ao adversário. Na de quatro, os demais continuam; o último
+          participante vence por abandono. A partida pausa se alguém ativo
+          desconectar. Sala expira após 30 minutos sem ação.
         </p>
       </div>
     </details>

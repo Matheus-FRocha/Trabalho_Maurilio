@@ -7,11 +7,12 @@ export function Table({ game }) {
   const state = game.view,
     [selected, setSelected] = useState(null),
     [sorted, setSorted] = useState(false);
-  const own = state.players.find((p) => p.id === game.playerId),
-    other = state.players.find((p) => p.id !== game.playerId);
+  const own = state.players.find((p) => p.id === game.playerId);
+  const others = state.players.filter((p) => p.id !== game.playerId);
+  const currentPlayer = state.players.find((p) => p.id === state.turnPlayerId);
   const mine = state.turnPlayerId === game.playerId,
     finished = state.status === "FINISHED";
-  const paused = state.players.some((p) => !p.connected),
+  const paused = state.players.some((p) => p.active !== false && !p.connected),
     locked = game.status !== "online" || !!game.pending || finished || paused;
   const canDraw = !locked && mine && state.phase === "DRAW",
     canDiscard = !locked && mine && state.phase === "DISCARD";
@@ -19,9 +20,9 @@ export function Table({ game }) {
   const hint = finished
     ? "A mesa guarda uma boa história."
     : paused
-      ? "Aguardando reconexão do adversário…"
+      ? "Aguardando reconexão de um participante…"
       : !mine
-        ? `Vez de ${other?.name}. Planeje sua próxima jogada.`
+        ? `Vez de ${currentPlayer?.name}. Planeje sua próxima jogada.`
         : state.phase === "DRAW"
           ? "Sua vez. Compre uma carta para começar."
           : "Escolha uma carta da sua mão e descarte.";
@@ -31,6 +32,10 @@ export function Table({ game }) {
         <div>
           <div className="eyebrow">
             SALA <span data-testid="room-code">{state.roomId}</span>
+            <span className="table-format">
+              {state.maxPlayers || 2} jogadores · {state.deckCopies || 1}{" "}
+              {(state.deckCopies || 1) === 1 ? "baralho" : "baralhos"}
+            </span>
           </div>
           <h1>Vamos às cartas.</h1>
         </div>
@@ -59,26 +64,38 @@ export function Table({ game }) {
         </span>
       </div>
       <section className="game-felt" aria-label="Mesa de jogo">
-        <div className="opponent">
-          <div className="player-label">
-            <span className="avatar small">
-              {other?.name.slice(0, 1).toUpperCase()}
-            </span>
-            <strong>{other?.name}</strong>
-            <span>
-              {other?.cardCount || 0} cartas ·{" "}
-              {other?.connected ? "conectado" : "ausente"}
-            </span>
-            {!mine && !finished && <small>JOGANDO</small>}
-          </div>
-          <div
-            className="opponent-cards"
-            aria-label={`${other?.cardCount || 0} cartas do adversário`}
-          >
-            {Array.from({ length: other?.cardCount || 0 }, (_, i) => (
-              <Card back key={i} />
-            ))}
-          </div>
+        <div className={`opponents opponents-${others.length}`}>
+          {others.map((other) => (
+            <div
+              className={`opponent ${other.active === false ? "player-left" : ""}`}
+              key={other.id}
+              role="group"
+              aria-label={`Jogador ${other.name}`}
+            >
+              <div className="player-label">
+                <span className="avatar small">
+                  {other?.name.slice(0, 1).toUpperCase()}
+                </span>
+                <strong>{other?.name}</strong>
+                <span>
+                  {other.active === false
+                    ? "Saiu da partida"
+                    : `${other.cardCount} cartas · ${other.connected ? "conectado" : "ausente"}`}
+                </span>
+                {other.id === state.turnPlayerId && !finished && (
+                  <small>JOGANDO</small>
+                )}
+              </div>
+              <div
+                className="opponent-cards"
+                aria-label={`${other?.cardCount || 0} cartas do adversário`}
+              >
+                {Array.from({ length: other?.cardCount || 0 }, (_, i) => (
+                  <Card back key={i} />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
         <div className="felt-watermark" aria-hidden="true">
           P<span>♠</span>FE

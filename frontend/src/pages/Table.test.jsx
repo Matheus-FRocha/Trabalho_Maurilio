@@ -1,6 +1,7 @@
 import { afterEach, describe, it, expect } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { Table } from "./Table";
+import { Result } from "../components/Result";
 
 afterEach(cleanup);
 function game(
@@ -28,6 +29,22 @@ function game(
   };
 }
 describe("game result", () => {
+  it("allows a departing four-player participant to leave while others continue", () => {
+    const value = game(null, null, [
+      { id: "a", name: "Ana", connected: false, active: false, cardCount: 0 },
+    ]);
+    value.view.status = "PLAYING";
+    value.view.maxPlayers = 4;
+    render(<Result game={value} />);
+    expect(
+      screen.getByRole("heading", { name: "Você saiu da partida" }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        "Os outros jogadores continuam na mesa. Você pode iniciar outra partida.",
+      ),
+    ).toBeVisible();
+  });
   it("shows cancellation instead of a draw when leaving before start", () => {
     render(<Table game={game("CANCELLED")} />);
     expect(

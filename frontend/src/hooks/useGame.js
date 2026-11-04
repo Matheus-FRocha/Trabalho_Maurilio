@@ -3,7 +3,14 @@ import { credentials, connectSession } from "../services/connection";
 import { gameReducer, initialState } from "../utils/gameState";
 import { messageId as newMessageId } from "../utils/messageId";
 export function useGame() {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
+  const [state, dispatch] = useReducer(gameReducer, {
+    ...initialState,
+    page: sessionStorage.getItem("pife.page") || "room",
+  });
+  const navigate = useCallback((page) => {
+    sessionStorage.setItem("pife.page", page);
+    dispatch({ type: "NAVIGATE", page });
+  }, []);
   const current = useRef(state),
     socket = useRef(null),
     timer = useRef(null);
@@ -72,6 +79,7 @@ export function useGame() {
             if (event.roomId && room.current && event.roomId !== room.current)
               return;
             if (event.state) {
+              if (!room.current) navigate("room");
               room.current = event.roomId;
               sessionStorage.setItem("pife.room", event.roomId);
             }
@@ -108,16 +116,33 @@ export function useGame() {
       clearTimeout(timer.current);
       client?.deactivate();
     };
-  }, []);
+  }, [navigate]);
   function reset() {
+    clearTimeout(timer.current);
     room.current = null;
     sessionStorage.removeItem("pife.room");
+    navigate("home");
     dispatch({ type: "CLEAR" });
+  }
+  function goHome() {
+    const view = current.current.view;
+    const me = view?.players.find(
+      (player) => player.id === current.current.playerId,
+    );
+    if (view?.status === "FINISHED" || me?.active === false) reset();
+    else navigate("home");
   }
   function restart() {
     sessionStorage.removeItem("pife.credentials");
     sessionStorage.removeItem("pife.room");
     location.reload();
   }
-  return { ...state, send, reset, restart };
+  return {
+    ...state,
+    send,
+    reset,
+    restart,
+    goHome,
+    resume: () => navigate("room"),
+  };
 }
