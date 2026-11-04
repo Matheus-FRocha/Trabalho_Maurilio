@@ -107,4 +107,32 @@ class GameServiceTest {
         assertThrows(GameException.class, () -> svc.handle("a",cmd("SYNC_ROOM",created.roomId(),null,Map.of())));
         assertNotNull(svc.handle("a",cmd("CREATE_ROOM",null,null,Map.of("name","A"))));
     }
+    @Test void finishedPlayersCanJoinAnotherRoom() {
+        var state=ready();
+        send("a","LEAVE_ROOM",state.roomId(),state.version(),Map.of());
+        var another=send("c","CREATE_ROOM",null,null,Map.of("name","C"));
+        var joined=send("b","JOIN_ROOM",another.roomId(),null,Map.of("name","B"));
+        assertEquals(2,joined.players().size());
+    }
+    @Test void syncingFinishedRoomDoesNotNotifyPlayerNowInAnotherRoom() {
+        var state=ready();
+        send("a","LEAVE_ROOM",state.roomId(),state.version(),Map.of());
+        var another=send("a","CREATE_ROOM",null,null,Map.of("name","Ana"));
+        var deliveries=service.handle("b",cmd("SYNC_ROOM",state.roomId(),null,Map.of()));
+        assertEquals(List.of("b"),deliveries.stream().map(Delivery::playerId).toList());
+        assertEquals(another.roomId(),send("a","SYNC_ROOM",another.roomId(),null,Map.of()).roomId());
+    }
+    @Test void exhaustedDeckEndsAsDrawWhenNobodyHasMelds() {
+        var svc=new GameService(Clock.systemUTC(),() -> Deck.shuffled(new Random(42)));
+        var created=svc.handle("a",cmd("CREATE_ROOM",null,null,Map.of("name","A"))).getFirst().event().state();
+        var joined=svc.handle("b",cmd("JOIN_ROOM",created.roomId(),null,Map.of("name","B"))).getFirst().event().state();
+        var state=svc.handle("a",cmd("START_GAME",joined.roomId(),joined.version(),Map.of())).getFirst().event().state();
+        for(int i=0;i<33;i++) {
+            String player=state.turnPlayerId();
+            var results=svc.handle(player,cmd("DRAW_CARD",state.roomId(),state.version(),Map.of("source","DECK")));
+            var drawn=results.stream().filter(d -> d.playerId().equals(player)).findFirst().orElseThrow().event().state();
+            state=svc.handle(player,cmd("DISCARD_CARD",drawn.roomId(),drawn.version(),Map.of("cardId",drawn.hand().getLast().id()))).getFirst().event().state();
+        }
+        assertEquals("FINISHED",state.status()); assertEquals("DECK_EMPTY",state.reason()); assertNull(state.winnerId());
+    }
 }

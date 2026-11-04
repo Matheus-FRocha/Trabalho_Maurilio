@@ -33,6 +33,11 @@ public class GameService {
             require(rooms.get(roomId)==room,"ROOM_NOT_FOUND","Sala expirada.");
             if ("JOIN_ROOM".equals(command.type())) return join(room,player,command);
             require(room.players.containsKey(player),"NOT_MEMBER","Você não pertence a esta sala.");
+            if("FINISHED".equals(room.status)) {
+                require("SYNC_ROOM".equals(command.type()) || room.processed.contains(player+":"+command.messageId()),
+                    "NOT_PLAYING","A partida já foi encerrada.");
+                return snapshot(room,command.messageId()).stream().filter(d -> d.playerId().equals(player)).toList();
+            }
             if ("SYNC_ROOM".equals(command.type())) {
                 var member=room.players.get(player);
                 if (!member.connected) { member.connected=true; room.version++; }
@@ -53,6 +58,7 @@ public class GameService {
             if(room.processed.size()>128) room.processed.removeFirst();
             room.version++;
             room.touched=clock.instant();
+            if("FINISHED".equals(room.status)) room.players.keySet().forEach(p -> membership.remove(p,room.id));
             return snapshot(room,command.messageId());
         } finally { room.lock.unlock(); }
     }

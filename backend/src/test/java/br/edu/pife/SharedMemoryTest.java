@@ -47,5 +47,21 @@ class SharedMemoryTest {
             assertTrue(SharedMemoryMonitor.read(file).contains("XYZ789"));
         }
     }
+    @Test void exclusiveWriterLockBlocksReaderInAnotherJvm() throws Exception {
+        Path file=directory.resolve("lock-probe.mmap");
+        Files.write(file,new byte[32]);
+        String executable=Path.of(System.getProperty("java.home"),"bin",System.getProperty("os.name").startsWith("Windows")?"java.exe":"java").toString();
+        Process process;
+        try(var channel=java.nio.channels.FileChannel.open(file,StandardOpenOption.READ,StandardOpenOption.WRITE)) {
+            try(var lock=channel.lock()) {
+                process=new ProcessBuilder(executable,"-cp",System.getProperty("java.class.path"),FileLockProbe.class.getName(),file.toString()).start();
+                var reader=process.inputReader();
+                assertEquals("READY",reader.readLine());
+                assertFalse(process.waitFor(300,TimeUnit.MILLISECONDS),"Reader crossed exclusive FileLock");
+            }
+            assertTrue(process.waitFor(5,TimeUnit.SECONDS));
+            assertEquals(0,process.exitValue());
+        }
+    }
 }
 
