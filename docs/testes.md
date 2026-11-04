@@ -27,7 +27,8 @@ O vídeo foi decodificado para conferência: 61,16 segundos, VP9/WebM, 1440x1080
 Os relatórios JUnit são gerados em backend/target/surefire-reports/; traces de falhas em
 frontend/test-results/. Essas pastas são ignoradas no Git; a CI reproduz os checks.
 
-Os testes foram escritos antes do código e executados inicialmente com ausência de implementação.
+Os ciclos iniciais de domínio, salas, IPC e transporte começaram com testes em RED por ausência
+de implementação. Testes adicionais de caracterização ampliaram a cobertura na integração.
 Na correção de membership após término, a regressão finishedPlayersCanJoinAnotherRoom foi observada
 falhando com ALREADY_IN_ROOM e passou após liberar a associação. Vitória por combinações tem fixture
 de baralho ordenado injetada apenas no teste; produção embaralha com SecureRandom e não tem endpoint

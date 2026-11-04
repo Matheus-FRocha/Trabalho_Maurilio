@@ -56,3 +56,15 @@ Vídeo conferido por decodificação: 61,16 segundos, 1440x1080, 25 fps; frame i
 Documentação final inclui requisitos, regras, arquitetura, protocolo, memória, locks, testes,
 cronograma, fontes e roteiro de apresentação/entrega. Nomes/turma, registro do jogo e link público
 do vídeo ficam a cargo da dupla; não foram preenchidos nem publicados em seu nome.
+
+## Publicação e verificação remota
+main, develop e seis branches feature publicadas em origin, preservando URL/histórico/LICENSE.
+Árvore local limpa após integração; nenhum push forçado. Commits do produto/documentação até
+6c2979d verificados no remoto. Relatório final de documentação acrescentado em commit separado.
+CI GitHub Actions em Linux concluída com sucesso em 03/11/2026 (1m30s):
+https://github.com/Matheus-FRocha/Trabalho_Maurilio/actions/runs/41744531456
+Incluiu npm ci/lint/format/test/build, Maven clean verify, health do JAR e os três Playwright.
+Código entregue validado em Windows e Linux. Servidor local do JAR mantido na porta 8080;
+servidor temporário da extração limpa na 8081 encerrado após testes.
+Pacotes finais são regenerados após este registro. Nenhuma atividade de código pendente;
+conferência de nomes/turma, registro do jogo e submissão continuam sob responsabilidade da dupla.
