@@ -44,11 +44,22 @@ como ausente um jogador que já voltou. Uma solicitação de sincronização enf
 restaurar a presença de um socket já fechado. A verificação do socket passou a ocorrer sob o
 lock da sala, o mesmo que protege a atualização de presença.
 
-Uma falha transitória ao gravar o marcador de expiração passava a informação de sala removida
-para o jogo, mas podia deixar o slot mapeado ocupado. A associação do slot é preservada até gravar
-o marcador, com nova tentativa no ciclo seguinte. A credencial de `CONNECT` é removida do frame
+Uma falha transitória ao gravar o marcador de expiração podia deixar o slot mapeado ocupado
+depois de a sala expirar. A associação do slot é preservada até gravar o marcador, com nova
+tentativa no ciclo seguinte. A credencial de `CONNECT` é removida do frame
 antes de autenticar, para que erros de rejeição do transporte não registrem o cabeçalho.
 
 Quatro cenários de regressão reproduziram os problemas e passaram após as correções. A suíte
 Maven final teve 37 testes aprovados. A integração do cabeçalho de sessão foi conferida com a
 documentação do Spring Framework 6.2.19 no Context7. [Resultados e limites](testes.md)
+
+O ZIP de fontes da revisão foi compilado em uma pasta recém-extraída com Node.js e Maven.
+O JAR completo iniciou com Java 21. O pacote compacto foi extraído em um caminho com espaços,
+baixou as dependências com cache Maven vazio e passou nos nove testes de navegador. O monitor
+incluído leu o snapshot de uma mesa para quatro jogadores em outra JVM. Os dois anexos do
+formulário atendem ao limite de 10.000.000 bytes. Foram verificados o conteúdo exato dos ZIPs,
+o manifesto dos JARs e as somas SHA-256.
+
+O commit de aplicação `515234b` passou nos jobs de verificação e contêiner. A versão entregue
+pelo Render respondeu `UP` em `/api/health` e passou nos nove testes Playwright por HTTPS/WSS.
+[Execução da CI](https://github.com/Matheus-FRocha/Trabalho_Maurilio/actions/runs/43768501519)
