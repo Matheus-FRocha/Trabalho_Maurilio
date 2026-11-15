@@ -1,8 +1,7 @@
-# Variante aprovada: Pife individual para 2 ou 4
+# Regras do Pife para 2 ou 4 jogadores
 
-Variante inicial confirmada em 03/11/2026; ampliação para quatro e jogo individual confirmada
-em 04/11/2026. Dois jogadores usam 1 baralho (52 cartas); quatro usam 2 (104 cartas), sem curingas,
-nove cartas por pessoa. A capacidade é escolhida ao criar a mesa; não há modalidade de duplas.
+Dois jogadores usam um baralho de 52 cartas. Quatro usam dois baralhos, totalizando 104 cartas.
+Cada pessoa recebe nove cartas. O jogo é individual e usa baralhos sem curingas.
 Ás vale 1: A-2-3 permitido, Q-K-A não.
 Trinca: três valores iguais de naipes distintos. Sequência: três valores consecutivos do mesmo naipe.
 Uma mão vencedora pode ser particionada em três combinações de três cartas, sem reutilizar cartas.
@@ -17,10 +16,8 @@ do monte ou o topo do descarte, depois descarta uma das dez cartas. Ao descartar
 verifica automaticamente as nove restantes; se formarem três jogos, encerra com vitória.
 Caso contrário, passa a vez. O descarte começa com uma carta virada.
 
-Decisões técnicas do MVP: primeiro turno do criador; não reciclar o descarte. Se o monte
-acabar após um descarte sem vitória, encerrar empatado. Desconexão pausa ações até reconectar;
-a sala expira após 30 minutos sem ação. É possível abandonar pela interface e criar outra sala.
-Essas decisões complementares ficam explícitas na sala antes do início.
+Se o monte acabar após um descarte sem vitória, a partida termina empatada. A desconexão pausa
+as jogadas até o participante voltar. A sala expira após 30 minutos sem ação.
 
 Saída voluntária antes do início cancela a sala, independentemente da quantidade: motivo CANCELLED,
 sem vencedor ou empate. Durante a partida, o desistente fica inativo e os demais continuam. Se a vez
@@ -28,6 +25,4 @@ era dele, passa ao próximo ativo em fase de compra; se outro já comprou, esse 
 Cartas do desistente saem do jogo, sem voltar ao monte ou descarte. Ele pode criar outra sala,
 mas não reentrar na anterior. Vitória por abandono ocorre quando sobra somente um participante:
 na mesa de dois isso acontece imediatamente; na de quatro apenas após três desistências.
-Ausência temporária/recarregamento permanece uma pausa para reconexão. Somente monte esgotado
-após descarte sem vitória gera empate. Critério de ciclo de vida adotado nesta revisão para corrigir
-o caso relatado pelo usuário; não altera a formação de combinações da variante aprovada.
+Recarregar a página pausa a partida durante a reconexão.

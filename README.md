@@ -4,53 +4,21 @@ Jogo web de Pife para **2 ou 4 jogadores em tempo real**, desenvolvido para Sist
 Servidor Java 21 autoritativo, cliente React, mensagens STOMP/WebSocket, exclusão mútua por sala
 e memória compartilhada real com um monitor em outra JVM. Sem cadastro ou banco de dados.
 
-**Jogar online:** [https://pife-caxeta.onrender.com](https://pife-caxeta.onrender.com) — Render Free,
-Java 21 e WebSocket WSS. Primeiro acesso após inatividade pode levar cerca de um minuto.
+**[Jogar online](https://pife-caxeta.onrender.com)** · **[Guia de execução e avaliação](docs/entrega.md)**
 
-## Publicação na internet e GitHub Pages
+O guia mostra como abrir os pacotes, testar uma partida e observar a memória compartilhada em uma
+segunda JVM. A primeira abertura do jogo online após inatividade pode levar cerca de um minuto.
 
-O código está versionado no GitHub. Isso **não hospeda automaticamente o jogo em execução**.
-O [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
-serve arquivos estáticos (HTML, CSS e JavaScript); não executa Java/Spring Boot nem o servidor WebSocket.
-Portanto, **o multiplayer completo não funciona hospedado somente no GitHub Pages**.
-
-| Opção | O que funciona |
-|---|---|
-| Repositório GitHub | Armazena código, documentação e workflow de testes; não mantém o jogo rodando |
-| Apenas GitHub Pages | Pode servir a interface compilada, mas não processa salas nem partidas Java |
-| Servidor com Java 21 e WebSocket | Executa o JAR completo e serve interface, API e partidas no mesmo endereço |
-| Pages + servidor Java externo | Possível após adaptar URLs/base do frontend e configurar as origens; exige as duas hospedagens |
-
-Para este projeto, a opção mais simples é **publicar o JAR completo em um serviço que execute Java 21**.
-O build continua podendo partir do repositório; o processo roda no servidor da hospedagem, não no Git.
-O serviço precisa manter uma instância ativa, aceitar WebSocket e oferecer diretório gravável para os
-arquivos mapeados. Use HTTPS/WSS para acesso público; o proxy deve encaminhar `/ws` com upgrade WebSocket.
-`PORT` (padrão 8080) ou `SERVER_PORT` configura a porta interna, `PIFE_ALLOWED_ORIGINS` as origens exatas autorizadas e
-`PIFE_SHARED_DIRECTORY` a pasta do espelho de memória compartilhada. Evite múltiplas instâncias,
-pois as salas ficam na memória de um único processo; reinícios perdem as partidas.
-
-O frontend usa `/api` e `/ws` na mesma origem. A publicação está no **Render**, executando
-o Dockerfile da raiz; não é GitHub Pages. O repositório continua privado e o serviço web é
-público. URL confirmada pela plataforma: **https://pife-caxeta.onrender.com**; configuração detalhada
-em [docs/hospedagem.md](docs/hospedagem.md). No Render, `RENDER_EXTERNAL_URL` define automaticamente a
-origem autorizada; HTTPS/WSS e forwarded headers são suportados. `render.yaml` especifica plano Free
-e deploy após checks. A confirmação da conta é feita fora do código, sem tokens no repositório.
-
-Para separar Pages e servidor seria necessário parametrizar URLs e base path dos assets. O JAR
-inteiro no Render evita essa separação. O serviço Free pode suspender após inatividade e reiniciar,
-perdendo as partidas em memória; consulte os [limites oficiais](https://render.com/docs/free).
-
-## Branches e integração
-
-A entrega inicial possui 8 branches remotas: `main`, `develop` e 6 branches `feature/*`
-(`backend-core`, `game-rules`, `websocket`, `frontend`, `integration` e `documentation`).
-São referências do histórico Git, não oito servidores ou instalações ativas. As seis funcionalidades
-já foram integradas. É válido mantê-las para rastreabilidade acadêmica ou removê-las após integração;
-o fluxo normal de novas correções é branch temporária -> develop -> main, após os testes.
+- [Requisitos do trabalho e evidências](docs/requisitos.md)
+- [Arquitetura e processos](docs/arquitetura.md)
+- [Protocolo de mensagens](docs/protocolo-de-mensagens.md)
+- [Memória compartilhada](docs/gerenciamento-de-memoria.md) e [exclusão mútua](docs/exclusao-mutua.md)
+- [Testes e resultados](docs/testes.md)
+- [Implantação no Render](docs/hospedagem.md)
 
 ## Saída, cancelamento e resultado
 
-- **Antes de começar:** sair da sala cancela a espera, esteja sozinho ou com outro jogador.
+- **Antes de começar:** sair da sala cancela a espera, independentemente de quantas pessoas entraram.
   A tela mostra “Sala encerrada”; não há vitória, derrota ou empate porque a partida não começou.
 - **Durante a partida de 2:** “Sair da partida” é desistência; o adversário vence por abandono.
 - **Durante a partida de 4:** o desistente sai e os demais continuam; turnos pulam quem saiu.
@@ -69,17 +37,18 @@ Clicar na **logo** volta ao início sem recarregar a página e sem desistir. A o
 leva de volta à partida, inclusive após recarregar a aba. Para abrir outra mesa, saia da anterior
 explicitamente. Desconectar apenas pausa para reconexão dos participantes ativos.
 
-## Executar no Windows
+## Compilar e executar
 
-Pré-requisitos: **JDK 21** (JAVA_HOME), **Node.js 22.12+** e acesso à internet no primeiro build.
-Maven 3.9.11 é baixado pelo wrapper; não é preciso instalá-lo globalmente.
-O script reconhece também o JDK local em `.tools/java/`, quando presente.
+Para compilar do código-fonte no Windows, use **JDK 21**, **Node.js 22.12+** e **Maven** no `PATH`.
+Execute os comandos a partir da raiz no CMD, com acesso à internet para baixar as dependências.
 
-Na raiz do repositório, em PowerShell:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/build.ps1
-powershell -ExecutionPolicy Bypass -File scripts/run.ps1
+```bat
+cd frontend
+npm ci
+npm run build
+cd ..\backend
+mvn clean package
+java -jar target\pife-1.0.0.jar
 ```
 
 Acesse **http://localhost:8080** em 2 ou 4 navegadores/contextos separados. Crie a mesa com a
@@ -96,8 +65,8 @@ Em Linux/macOS: `cd frontend && npm ci && npm run build`, depois
 Na primeira vez, execute `npm ci` dentro de `frontend`. Em dois terminais na raiz:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/dev-backend.ps1
-powershell -ExecutionPolicy Bypass -File scripts/dev-frontend.ps1
+./scripts/dev-backend.ps1
+./scripts/dev-frontend.ps1
 ```
 
 Abra http://localhost:5173. O Vite encaminha `/api` e `/ws` para a porta 8080.
@@ -131,7 +100,7 @@ quando iniciado por `scripts/run.ps1` (em desenvolvimento: `backend/runtime/shar
 Execute em outro terminal:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/monitor.ps1 -File runtime/shared/slot-000.mmap
+./scripts/monitor.ps1 -File runtime/shared/slot-000.mmap
 ```
 
 Esse comando inicia **outro processo Java**, mapeia o mesmo arquivo e lê turno, fase, contagens e
@@ -149,23 +118,14 @@ docs/       requisitos, regras, protocolo, arquitetura, evidências e entrega
 scripts/    build, execução, desenvolvimento, monitor e empacotamento
 ```
 
-Spring Boot 3.5.16 é a versão estável de manutenção da linha 3.5 consultada nesta execução,
-escolhida para manter JUnit 5 e Jackson 2 conforme o pedido. Versões JavaScript exatas no lockfile.
-Context7 foi conectado durante a execução e confirmou autenticação STOMP e integração Tailwind/Vite;
-também foram usadas [fontes oficiais](docs/referencias.md).
-Os nomes dos integrantes e a turma devem ser preenchidos pela dupla, sem inventar informações.
+As versões das dependências estão registradas no POM e no lockfile do frontend.
+[Referências técnicas](docs/referencias.md)
 
 ## Entrega
 
-`scripts/package.ps1` gera em `output/entrega/` dois ZIPs: fontes e fontes com JAR executável.
-É necessário executar o build antes. O pacote executável inclui `iniciar.cmd` e requer Java 21.
-Para o Forms de 10 MB, execute `scripts/package.ps1 -ForForms` e use `pife-fontes.zip` e
-`pife-com-executavel-forms.zip`. O ZIP menor requer JDK 21 e Maven no PATH para obter dependências
-na primeira execução. Para testar fora do Forms, o ZIP completo inicia com `java -jar bin\pife.jar`.
-O script `frontend/scripts/record-gameplay.mjs` grava cerca de um minuto de gameplay real:
-inicie o JAR na porta 8080, depois execute `node scripts/record-gameplay.mjs` dentro de `frontend`.
-O vídeo fica em `output/videos/gameplay.webm`, sem narração. Roteiro de apresentação e formulário:
-[docs/entrega.md](docs/entrega.md).
+Depois do build, `scripts/package.ps1` gera os ZIPs de fontes e do JAR completo em `output/entrega/`.
+Com `-ForForms`, gera também a versão compacta de até 10 MB, cujo primeiro início usa Maven para
+obter as dependências. [Instruções dos pacotes](docs/entrega.md#executar-o-pacote-no-windows)
 
 ## Limitações conhecidas
 

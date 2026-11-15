@@ -1,7 +1,7 @@
 # Validação executada
 
-Ambiente: Windows, Temurin JDK 21.0.13 local, Maven 3.9.11 wrapper, Node 24.15.0 e npm 11.12.1.
-Atualização: 04/11/2026. Não há Mockito nos testes porque domínio, transporte e IPC são exercitados de verdade.
+Ambiente local em 15/11/2026: Windows, Temurin JDK 21.0.13, Maven 3.9.11, Node 24 e npm 11.
+O domínio, o transporte WebSocket e a comunicação pela memória mapeada são executados nos testes.
 
 ## Cobertura e evidências
 | Suíte | Casos e resultados observados |
@@ -19,20 +19,20 @@ Atualização: 04/11/2026. Não há Mockito nos testes porque domínio, transpor
 
 Total Java observado: **33 testes, zero falhas/erros/ignorados**. Frontend: **13 testes** unitários e
 **9 testes** de navegador no ambiente de desenvolvimento e contra o frontend servido pelo JAR
-(PIFE_BASE_URL=8080), sem Vite. ESLint, Prettier e Vite build passaram.
+(`PIFE_BASE_URL=http://localhost:8080`), sem Vite. ESLint, Prettier e Vite build passaram.
 Os nove casos também passaram em **https://pife-caxeta.onrender.com**, via HTTPS/WSS,
 após reconstrução sem cache do commit ce9e1d6 no Render Free (04/11/2026): 9/9, em 1,2 minuto.
-GET / retornou HTTP200 com index-Dy0d70QZ.js e /api/health retornou UP.
+`GET /` serviu a interface compilada com HTTP 200 e `GET /api/health` retornou `UP`.
 Diagnóstico adicional executou 12 recargas consecutivas de resultado antigo enquanto o outro
 jogador estava em nova sala: 12 recuperadas, zero falhas. Houve 20 SYNC enviados, demonstrando
 tentativas adicionais sem repetir ações de jogo. Isso não é prova de disponibilidade permanente.
-Na validação da entrega inicial, o ZIP com executável foi extraído em diretório limpo, iniciado
-pelo iniciar.cmd na porta 8081, e os três testes então existentes passaram. Monitor.cmd também leu o mmap.
-Na atualização para quatro jogadores/recuperação, um novo ZIP foi extraído em pasta nova, seu JAR
-foi iniciado com Java21 na porta8081 e os nove cenários passaram; segunda JVM leu o mmap do pacote.
+Em 15/11, o pacote compacto foi extraído, obtendo as dependências a partir de um cache Maven vazio.
+Os nove testes Playwright passaram contra esse JAR e o monitor de outra JVM leu o arquivo mapeado.
+O JAR completo, extraído em outra pasta, respondeu `UP` ao ser iniciado com `java -jar`.
 Inspeção dos ZIPs: nenhum arquivo-fonte ausente, nenhuma credencial/runtime/dependência local,
 LICENSE idêntico ao original e nenhum .jar/.class/.exe no ZIP apenas de fontes.
-O vídeo foi decodificado para conferência: 61,16 segundos, VP9/WebM, 1440x1080, 25 fps, sem áudio.
+O MP4 de demonstração foi decodificado integralmente. A duração é de 59,04 segundos e o vídeo
+inclui a tela final com vitória por abandono.
 Os relatórios JUnit são gerados em backend/target/surefire-reports/; traces de falhas em
 frontend/test-results/. Essas pastas são ignoradas no Git; a CI reproduz os checks.
 
@@ -53,7 +53,7 @@ para manipular baralho ou mãos. Encerramento completo no navegador usa saída v
 - Revisão independente encontrou entrega de snapshot de sala antiga ao participante em sala nova.
   Teste observou destinatários [a,b] quando deveria ser [b]; corrigido no serviço e com filtro no cliente.
 - randomUUID ausente em HTTP de rede local: helper com getRandomValues, teste unitário e teste de
-  navegador removendo essa API passaram. Não é teste em outro computador físico.
+  navegador removendo essa API passaram. O teste foi executado em contextos de um mesmo computador.
 - Saída sozinho na espera mostrava empate: testes Java observaram ABANDONMENT em vez de CANCELLED;
   React inferia empate de qualquer winnerId nulo. Corrigido para motivo explícito, cancelamento sem
   mesa fictícia e vitória do adversário apenas durante partida iniciada. Cinco Playwright passaram.
