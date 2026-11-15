@@ -159,6 +159,9 @@ Os nomes dos integrantes e a turma devem ser preenchidos pela dupla, sem inventa
 
 `scripts/package.ps1` gera em `output/entrega/` dois ZIPs: fontes e fontes com JAR executável.
 É necessário executar o build antes. O pacote executável inclui `iniciar.cmd` e requer Java 21.
+Para o Forms de 10 MB, execute `scripts/package.ps1 -ForForms` e use `pife-fontes.zip` e
+`pife-com-executavel-forms.zip`. O ZIP menor requer JDK 21 e Maven no PATH para obter dependências
+na primeira execução. Para testar fora do Forms, o ZIP completo inicia com `java -jar bin\pife.jar`.
 O script `frontend/scripts/record-gameplay.mjs` grava cerca de um minuto de gameplay real:
 inicie o JAR na porta 8080, depois execute `node scripts/record-gameplay.mjs` dentro de `frontend`.
 O vídeo fica em `output/videos/gameplay.webm`, sem narração. Roteiro de apresentação e formulário:

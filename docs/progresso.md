@@ -152,3 +152,26 @@ Revisão independente da recuperação corrigiu o único achado; revisão adicio
 Docker/POM que explicasse o artefato anterior. Não se atribuiu uma causa não comprovada ao Render.
 Registro final só documental usa [skip render] para preservar a implantação de aplicação ce9e1d6
 e evitar reiniciar partidas por uma atualização de README/documentação.
+
+## 15/11/2026: anexos e respostas do Forms
+
+O limite de 10 MB por anexo exclui o ZIP completo com dependências, de 20,3 MB. O modo
+`-ForForms` gera um ZIP com todas as fontes, o JAR leve executável e o launcher CMD. O Maven
+instalado no PATH baixa para `bin/lib` na primeira execução. O JAR completo para teste com
+Java 21 continua disponível fora do Forms. O manifesto do JAR leve foi conferido com a
+documentação do Maven Archiver no Context7 (`/websites/maven_apache`).
+
+O aviso corporativo cita uma ação bloqueada do PowerShell. `mvnw.cmd` usa PowerShell, por isso
+o roteiro do avaliador utiliza `java -jar` e `mvn` instalado, conforme o pacote escolhido.
+O pacote Forms iniciou a partir da extração com Java 21 e um cache Maven vazio. A versão completa
+respondeu ao health check quando executada diretamente com `java -jar` a partir da extração.
+Maven aprovou 33 testes, Vitest aprovou 13 testes, Vite gerou a interface e 9 cenários Playwright
+passaram contra o JAR leve. O teste em outro Windows fica com o colega do usuário.
+
+O vídeo original desta versão tinha 65,68 segundos. O MP4 de entrega foi acelerado para 59,04
+segundos, decodificado integralmente e conferido no quadro final de vitória por abandono.
+O jogo hospedado respondeu UP. Os nomes dos integrantes e o link do vídeo devem ser preenchidos
+no formulário após a publicação do MP4 pelo aluno.
+
+O GitHub informou visibilidade pública para o repositório em 15/11, diferente da visibilidade
+privada verificada na publicação. Esta atualização de empacotamento ficou no Git local e nos ZIPs.
