@@ -11,6 +11,10 @@ em salas diferentes. Criação de salas é serializada brevemente para respeitar
 Não há caminho que segure dois locks de salas diferentes. A expiração adquire uma sala por vez e usa
 remoção condicional para não remover associação já substituída.
 
+O fechamento de um socket verifica novamente a presença de uma conexão ativa com o lock da sala
+adquirido. `SYNC_ROOM` usa esse mesmo lock, impedindo que um fechamento atrasado sobrescreva a
+presença restaurada pela reconexão.
+
 Dois DRAW_CARD com a mesma versão competem pelo lock. Apenas o primeiro altera a mão e incrementa
 versão; o segundo recebe STALE_STATE. Repetição de messageId conhecido recebe snapshot sem repetir
 a mutação. O teste com oito threads confere uma compra, dez cartas e decremento único do monte.

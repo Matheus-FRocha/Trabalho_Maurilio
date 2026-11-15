@@ -12,9 +12,8 @@ arquivos. O sistema operacional mantém páginas mapeadas apoiadas pelo arquivo.
 entre processos; MappedByteBuffer.force publica o conteúdo para o arquivo. Não se usa serialização de
 objetos Java nem um banco. O monitor lê o estado público; não é um segundo servidor de regras.
 
-O espelho é uma demonstração real de IPC compartilhado, complementar ao jogo web. Os navegadores
-não acessam os arquivos mapeados. Se a avaliação exigir especificamente que cada processo jogador
-mapeie a região, será necessário um cliente nativo adicional; não afirmar que o navegador faz isso.
+A demonstração de IPC usa o servidor e uma segunda JVM como leitora. Os navegadores recebem
+os dados da mesa por mensagens, enquanto os dois processos Java acessam a região mapeada.
 
 ## Ciclo de vida
 1. CREATE_ROOM cria Room com players, mãos, deck, descarte, fase, turno, versão e timestamp.
@@ -39,7 +38,8 @@ desconectadas. Sessions em uso continuam identificadas até desconectar. Não h�
 Até 128 arquivos `slot-NNN.mmap`, cada um com 16 KiB (máximo 2 MiB de regiões mapeadas).
 Primeiros 4 bytes: tamanho do JSON, inteiro big-endian. Restante: UTF-8 com protocol PIFE/1,
 roomId, version, status, turno/fase, jogadores/contagens, deckCount, discardTop e resultado.
-Sem mãos, tokens ou ordem do monte. Na expiração, escreve tombstone EXPIRED e recicla o slot.
+O espelho contém apenas dados públicos. Na expiração, o servidor grava o marcador `EXPIRED` e
+recicla o slot. Se a gravação falhar, mantém a associação e repete a tentativa no ciclo seguinte.
 
 Slots são mantidos mapeados até o fim do processo; não se força unmap com APIs internas do JDK.
 Reutilização evita acúmulo e problemas de exclusão de arquivo mapeado no Windows. Não abrir dois

@@ -3,6 +3,7 @@ package br.edu.pife;
 import br.edu.pife.dto.*;
 import br.edu.pife.model.*;
 import br.edu.pife.service.GameService;
+import br.edu.pife.service.SessionRegistry;
 import br.edu.pife.exception.GameException;
 import org.junit.jupiter.api.Test;
 import java.time.*;
@@ -58,6 +59,33 @@ class GameServiceTest {
         assertEquals(10,duplicate.hand().size());
         assertNull(duplicate.discardTop());
     }
+    @Test void delayedDisconnectDoesNotPauseAPlayerWhoAlreadyReconnected() {
+        var sessions=new SessionRegistry(Clock.systemUTC());
+        var credentials=sessions.create();
+        var authorization="Bearer "+credentials.token();
+        var player=sessions.connect(authorization,"old-socket").getName();
+        var created=send("a","CREATE_ROOM",null,null,Map.of("name","Ana"));
+        var joined=send(player,"JOIN_ROOM",created.roomId(),null,Map.of("name","Beto"));
+        var state=send("a","START_GAME",joined.roomId(),joined.version(),Map.of());
+
+        assertTrue(sessions.disconnected(player,"old-socket"));
+        sessions.connect(authorization,"new-socket");
+        var synced=send(player,"SYNC_ROOM",state.roomId(),null,Map.of());
+        assertTrue(service.disconnect(player,() -> !sessions.hasActiveSocket(player)).isEmpty());
+
+        var drawn=send("a","DRAW_CARD",state.roomId(),synced.version(),Map.of("source","DECK"));
+        assertEquals(10,drawn.hand().size());
+        assertTrue(drawn.players().stream().filter(p -> p.id().equals(player)).findFirst().orElseThrow().connected());
+    }
+    @Test void queuedSyncDoesNotRestorePresenceForAClosedSocket() {
+        var state=ready();
+        service.disconnect("b",() -> true);
+
+        assertTrue(service.handle("b",cmd("SYNC_ROOM",state.roomId(),null,Map.of()),() -> false).isEmpty());
+
+        var observed=send("a","SYNC_ROOM",state.roomId(),null,Map.of());
+        assertFalse(observed.players().stream().filter(p -> p.id().equals("b")).findFirst().orElseThrow().connected());
+    }
     @Test void concurrentDrawsHaveExactlyOneWinner() throws Exception {
         var state=ready();
         var successes=new AtomicInteger();
@@ -90,7 +118,7 @@ class GameServiceTest {
     }
     @Test void disconnectPausesUntilSyncAndResignHasAResult() {
         var state=ready();
-        service.disconnect("b");
+        service.disconnect("b",() -> true);
         var paused=send("a","SYNC_ROOM",state.roomId(),null,Map.of());
         assertFalse(paused.players().get(1).connected());
         assertThrows(GameException.class, () -> send("a","DRAW_CARD",state.roomId(),paused.version(),Map.of("source","DECK")));

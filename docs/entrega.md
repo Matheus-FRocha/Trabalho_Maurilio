@@ -1,4 +1,4 @@
-# Guia de execução e avaliação
+# Guia de execução
 
 O Pife/Caxeta é um jogo de cartas em tempo real para duas ou quatro pessoas. A versão web pode
 ser aberta diretamente no navegador. No Render Free, a primeira abertura após inatividade pode

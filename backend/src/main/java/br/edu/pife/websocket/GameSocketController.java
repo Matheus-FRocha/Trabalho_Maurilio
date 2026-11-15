@@ -5,6 +5,7 @@ import br.edu.pife.exception.GameException;
 import org.slf4j.*;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import java.security.Principal;
@@ -15,9 +16,10 @@ public class GameSocketController {
     private final EventDispatcher events;
     private final SessionRegistry sessions;
     public GameSocketController(GameService games,EventDispatcher events,SessionRegistry sessions) { this.games=games; this.events=events; this.sessions=sessions; }
-    @MessageMapping("/game") public void command(Command command,Principal principal) {
+    @MessageMapping("/game") public void command(Command command,Principal principal,SimpMessageHeaderAccessor headers) {
         if(principal==null) return;
-        try { events.deliver(games.handle(principal.getName(),command)); }
+        String socket=headers.getSessionId();
+        try { events.deliver(games.handle(principal.getName(),command,() -> sessions.isActiveSocket(principal.getName(),socket))); }
         catch(GameException error) { events.send(principal.getName(),new Event("GAME_ERROR",command.messageId(),command.roomId(),0,null,error.code(),error.getMessage())); }
         catch(Exception error) {
             log.error("Unexpected game failure",error);
@@ -25,7 +27,9 @@ public class GameSocketController {
         }
     }
     @EventListener public void disconnect(SessionDisconnectEvent event) {
-        if(event.getUser()!=null && sessions.disconnected(event.getUser().getName(),event.getSessionId()))
-            events.deliver(games.disconnect(event.getUser().getName()));
+        if(event.getUser()==null) return;
+        String player=event.getUser().getName();
+        if(sessions.disconnected(player,event.getSessionId()))
+            events.deliver(games.disconnect(player,() -> !sessions.hasActiveSocket(player)));
     }
 }

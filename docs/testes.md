@@ -7,17 +7,17 @@ O domínio, o transporte WebSocket e a comunicação pela memória mapeada são 
 | Suíte | Casos e resultados observados |
 |---|---|
 | DomainTest (4) | Baralho único, embaralhamento, trincas/sequências, partições, rejeição Q-K-A/duplicatas |
-| GameServiceTest (12) | Salas, mãos privadas, fases, turno, versão, repetição, corrida 8 threads, vitória, reconexão, expiração, nova sala, isolamento de sala encerrada, monte esgotado e cancelamento antes do início com um ou dois jogadores |
-| SharedMemoryTest (3) | Segunda JVM lendo mmap, snapshots antigos/slots, leitor bloqueado por FileLock de outro processo |
+| GameServiceTest (14) | Salas, mãos privadas, fases, turno, versão, repetição, corrida 8 threads, vitória, reconexão, expiração, nova sala, isolamento de sala encerrada, monte esgotado e cancelamento. Inclui mensagens atrasadas de sockets substituídos e fechados. |
+| SharedMemoryTest (4) | Segunda JVM lendo mmap, snapshots antigos e reutilização de slots, bloqueio por FileLock e nova tentativa após falha de expiração do espelho. |
 | SessionRegistryTest (2) | Token aleatório, token exigido, socket antigo substituído e desconexão antiga sem efeito |
-| SocketSecurityTest (1) | Assinatura alheia e publicação direta no broker recusadas |
+| SocketSecurityTest (2) | Assinatura alheia e publicação direta no broker recusadas. Remoção da credencial do frame antes de registrar uma rejeição. |
 | WebSocketIntegrationTest (2) | Servidor HTTP/socket real, dois jogadores, mãos diferentes, erro de turno e compras/descartes; CONNECT inválido |
 | FourPlayerTest (8) | 104 IDs físicos, faces duplicadas/trincas, vagas, distribuição privada, quatro turnos, desistência e último participante, nova sala e SYNC antigo |
 | PublicOriginIntegrationTest (1) | Origem pública RENDER_EXTERNAL_URL permitida; origem diferente recusada |
 | Vitest (13) | Snapshots e pending, ordenação, IDs, resultados, recuperação limitada, confirmação e cancelamento de timers |
 | Playwright (9) | Dois ou quatro contextos, turnos, logo, retomada/reload, desistentes, nova sala, mobile, cancelamento, resposta de criação atrasada e primeira resposta SYNC perdida |
 
-Total Java observado: **33 testes, zero falhas/erros/ignorados**. Frontend: **13 testes** unitários e
+Total Java observado: **37 testes, zero falhas/erros/ignorados**. Frontend: **13 testes** unitários e
 **9 testes** de navegador no ambiente de desenvolvimento e contra o frontend servido pelo JAR
 (`PIFE_BASE_URL=http://localhost:8080`), sem Vite. ESLint, Prettier e Vite build passaram.
 Os nove casos também passaram em **https://pife-caxeta.onrender.com**, via HTTPS/WSS,
@@ -78,5 +78,6 @@ para manipular baralho ou mãos. Encerramento completo no navegador usa saída v
 ## Limites
 Os testes não comprovam desempenho sob carga ou disponibilidade distribuída. Teste automatizado de
 vitória no navegador por combinações não foi feito; a regra é provada no domínio/serviço. O teste real
-WebSocket usa baralho aleatório, e o de vitória usa fixture local. Alertas moderados de minimatch
-aparecem na cadeia de desenvolvimento do ESLint; npm audit --omit=dev retornou zero vulnerabilidades.
+WebSocket usa baralho aleatório, e o teste de vitória usa um baralho fixo. Na revisão de 15/11,
+o `npm audit --omit=dev` encontrou zero alertas no conjunto de produção do frontend. A cadeia de
+desenvolvimento do ESLint teve três alertas moderados associados a minimatch.

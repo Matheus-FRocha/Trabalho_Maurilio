@@ -15,7 +15,8 @@ Envelope JSON enviado pelo cliente (notação própria construída sobre STOMP):
 `version` é a revisão esperada da sala, não a versão do protocolo; PIFE/1 é a versão documental do
 contrato. `messageId` deve ser não vazio e ter no máximo 80 caracteres. Frontend usa UUID.
 Criação, entrada e sincronização não exigem versão; demais comandos precisam da versão exata.
-Campos desconhecidos são rejeitados por Jackson. Payload contém apenas strings.
+O conversor STOMP ignora campos extras do envelope. Os comandos usam os campos descritos abaixo,
+e a identidade vem da sessão autenticada. Os valores reconhecidos de `payload` são strings.
 
 | type | payload | Regra |
 |---|---|---|

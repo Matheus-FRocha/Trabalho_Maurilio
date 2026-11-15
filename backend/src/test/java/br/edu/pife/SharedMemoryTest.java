@@ -4,9 +4,13 @@ import br.edu.pife.dto.*;
 import br.edu.pife.model.*;
 import br.edu.pife.service.*;
 import br.edu.pife.util.SharedMemoryMonitor;
+import br.edu.pife.websocket.EventDispatcher;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.support.ExecutorSubscribableChannel;
 import java.nio.file.*;
 import java.time.*;
 import java.util.*;
@@ -45,6 +49,38 @@ class SharedMemoryTest {
             Path reused=store.write(new GameView("XYZ789",1,"WAITING","x",null,"DRAW",List.of(),List.of(),null,0,null,null,2,1));
             assertEquals(file,reused);
             assertTrue(SharedMemoryMonitor.read(file).contains("XYZ789"));
+        }
+    }
+    @Test void retriesAnExpiredSlotAfterATransientWriteFailure() throws Exception {
+        var roomClock=Clock.fixed(Instant.EPOCH,ZoneOffset.UTC);
+        var later=Clock.fixed(Instant.EPOCH.plusSeconds(1801),ZoneOffset.UTC);
+        var service=new GameService(roomClock,Deck::ordered);
+        var state=service.handle("a",new Command("CREATE_ROOM",null,"create",null,Map.of("name","Ana")))
+            .getFirst().event().state();
+        var mapper=new ObjectMapper() {
+            private boolean firstFailure=true;
+            @Override public byte[] writeValueAsBytes(Object value) throws JsonProcessingException {
+                if(firstFailure && value instanceof Map<?,?> map && "EXPIRED".equals(map.get("status"))) {
+                    firstFailure=false;
+                    throw new JsonProcessingException("Transient serialization failure") {};
+                }
+                return super.writeValueAsBytes(value);
+            }
+        };
+        try(var store=new SharedMemoryStore(directory,mapper)) {
+            var dispatcher=new EventDispatcher(new SimpMessagingTemplate(new ExecutorSubscribableChannel()),
+                store,service,new SessionRegistry(later),later);
+            var file=store.write(state);
+
+            dispatcher.expire();
+            assertFalse(service.containsRoom(state.roomId()));
+            assertTrue(SharedMemoryMonitor.read(file).contains("WAITING"));
+            dispatcher.expire();
+
+            assertTrue(SharedMemoryMonitor.read(file).contains("EXPIRED"));
+            var next=service.handle("b",new Command("CREATE_ROOM",null,"next",null,Map.of("name","Beto")))
+                .getFirst().event().state();
+            assertEquals(file,store.write(next));
         }
     }
     @Test void exclusiveWriterLockBlocksReaderInAnotherJvm() throws Exception {

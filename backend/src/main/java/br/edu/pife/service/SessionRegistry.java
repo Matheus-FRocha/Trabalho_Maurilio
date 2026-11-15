@@ -31,10 +31,14 @@ public final class SessionRegistry {
         return identity::playerId;
     }
     public void validate(Principal principal,String socket) {
-        if(principal==null || !Objects.equals(activeSockets.get(principal.getName()),socket))
+        if(principal==null || !isActiveSocket(principal.getName(),socket))
             throw new GameException("IDENTITY","Conexão substituída ou inválida.");
     }
+    public boolean isActiveSocket(String player,String socket) {
+        return socket!=null && socket.equals(activeSockets.get(player));
+    }
     public boolean disconnected(String player,String socket) { return activeSockets.remove(player,socket); }
+    public boolean hasActiveSocket(String player) { return activeSockets.containsKey(player); }
     public void expire() {
         var now=clock.instant();
         tokens.entrySet().removeIf(entry -> entry.getValue().expires.isBefore(now) && !activeSockets.containsKey(entry.getValue().playerId));

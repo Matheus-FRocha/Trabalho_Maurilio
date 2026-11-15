@@ -49,9 +49,10 @@ public final class SharedMemoryStore implements AutoCloseable {
         }
     }
     public synchronized void remove(String roomId) throws IOException {
-        var slot=rooms.remove(roomId);
+        var slot=rooms.get(roomId);
         if(slot==null) return;
         write(slot,mapper.writeValueAsBytes(Map.of("roomId",roomId,"status","EXPIRED")));
+        rooms.remove(roomId);
         slot.room=null; slot.version=0;
     }
     @Override public synchronized void close() throws IOException {

@@ -8,6 +8,15 @@ import java.time.Clock;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SocketSecurityTest {
+    @Test void removesBearerHeaderBeforeAuthenticationErrorsCanLogTheFrame() {
+        var security=new SocketSecurity(new SessionRegistry(Clock.systemUTC()));
+        var connect=StompHeaderAccessor.create(StompCommand.CONNECT);
+        connect.setSessionId("session-a"); connect.setNativeHeader("Authorization","Bearer invalid");
+        connect.setLeaveMutable(true);
+        var message=MessageBuilder.createMessage(new byte[0],connect.getMessageHeaders());
+        assertThrows(RuntimeException.class, () -> security.preSend(message,null));
+        assertNull(connect.getFirstNativeHeader("Authorization"));
+    }
     @Test void rejectsForeignSubscriptionsAndClientBrokerPublishing() {
         var registry=new SessionRegistry(Clock.systemUTC());
         var security=new SocketSecurity(registry);

@@ -9,6 +9,7 @@ import java.time.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import java.util.function.IntFunction;
 
@@ -23,6 +24,9 @@ public class GameService {
     public GameService(Clock clock, IntFunction<List<Card>> decks) { this.clock=clock; this.decks=decks; }
 
     public List<Delivery> handle(String player, Command command) {
+        return handle(player,command,() -> true);
+    }
+    public List<Delivery> handle(String player,Command command,BooleanSupplier socketActive) {
         require(player != null && !player.isBlank(), "IDENTITY", "Sessão inválida.");
         require(command != null && command.type()!=null && command.messageId()!=null
             && !command.messageId().isBlank() && command.messageId().length()<=80,
@@ -33,6 +37,7 @@ public class GameService {
         require(room!=null,"ROOM_NOT_FOUND","Sala não encontrada ou expirada.");
         room.lock.lock();
         try {
+            if("SYNC_ROOM".equals(command.type()) && !socketActive.getAsBoolean()) return List.of();
             require(rooms.get(roomId)==room,"ROOM_NOT_FOUND","Sala expirada.");
             if ("JOIN_ROOM".equals(command.type())) return join(room,player,command);
             require(room.players.containsKey(player),"NOT_MEMBER","Você não pertence a esta sala.");
@@ -191,7 +196,7 @@ public class GameService {
         }
         throw new IllegalStateException("No active participant");
     }
-    public List<Delivery> disconnect(String player) {
+    public List<Delivery> disconnect(String player,BooleanSupplier stillOffline) {
         var id=membership.get(player);
         var room=id==null?null:rooms.get(id);
         if(room==null) return List.of();
@@ -199,6 +204,8 @@ public class GameService {
         try {
             var member=room.players.get(player);
             if(member==null || !member.active || !member.connected) return List.of();
+            // SYNC_ROOM takes the same lock, so a reconnect can never be overwritten by a late close.
+            if(!stillOffline.getAsBoolean()) return List.of();
             member.connected=false; room.version++;
             return snapshot(room,null);
         } finally { room.lock.unlock(); }

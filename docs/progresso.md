@@ -36,6 +36,19 @@ foi verificado com duração de 59,04 segundos e mostra uma partida encerrada po
 A integração contínua verificou o build, o contêiner, a comunicação entre navegadores e o monitor
 em uma segunda JVM. [Execução da CI](https://github.com/Matheus-FRocha/Trabalho_Maurilio/actions/runs/43765688726)
 
-A revisão da documentação reuniu as instruções de execução, os passos para testar uma partida e
-a demonstração de IPC no [guia de avaliação](entrega.md). O estado das partidas fica em memória
-e é perdido se o servidor reiniciar. A hospedagem usa uma única instância.
+A revisão final restringiu as orientações da entrega à execução do jogo e do monitor. A
+documentação técnica descreve o protocolo, a arquitetura e os limites verificados.
+
+Foram reproduzidas duas ordens de eventos na reconexão. Um fechamento atrasado podia marcar
+como ausente um jogador que já voltou. Uma solicitação de sincronização enfileirada também podia
+restaurar a presença de um socket já fechado. A verificação do socket passou a ocorrer sob o
+lock da sala, o mesmo que protege a atualização de presença.
+
+Uma falha transitória ao gravar o marcador de expiração passava a informação de sala removida
+para o jogo, mas podia deixar o slot mapeado ocupado. A associação do slot é preservada até gravar
+o marcador, com nova tentativa no ciclo seguinte. A credencial de `CONNECT` é removida do frame
+antes de autenticar, para que erros de rejeição do transporte não registrem o cabeçalho.
+
+Quatro cenários de regressão reproduziram os problemas e passaram após as correções. A suíte
+Maven final teve 37 testes aprovados. A integração do cabeçalho de sessão foi conferida com a
+documentação do Spring Framework 6.2.19 no Context7. [Resultados e limites](testes.md)

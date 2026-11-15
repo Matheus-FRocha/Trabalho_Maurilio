@@ -11,7 +11,10 @@ public final class SocketSecurity implements ChannelInterceptor {
         if(headers==null || headers.getCommand()==null) return message;
         var command=headers.getCommand();
         if(command==StompCommand.CONNECT) {
-            headers.setUser(sessions.connect(headers.getFirstNativeHeader("Authorization"),headers.getSessionId()));
+            String authorization=headers.getFirstNativeHeader("Authorization");
+            // The transport can log a rejected CONNECT. Keep the credential out of that frame.
+            headers.removeNativeHeader("Authorization");
+            headers.setUser(sessions.connect(authorization,headers.getSessionId()));
         } else if(command==StompCommand.SEND || command==StompCommand.SUBSCRIBE) {
             sessions.validate(headers.getUser(),headers.getSessionId());
             String allowed=command==StompCommand.SEND?"/app/game":"/user/queue/events";
