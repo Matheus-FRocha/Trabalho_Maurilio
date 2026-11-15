@@ -63,3 +63,8 @@ o manifesto dos JARs e as somas SHA-256.
 O commit de aplicação `515234b` passou nos jobs de verificação e contêiner. A versão entregue
 pelo Render respondeu `UP` em `/api/health` e passou nos nove testes Playwright por HTTPS/WSS.
 [Execução da CI](https://github.com/Matheus-FRocha/Trabalho_Maurilio/actions/runs/43768501519)
+
+Uma execução do contêiner em `develop` recuperou a sala, mas falhou na contagem de mensagens
+do teste de reconexão. A simulação podia descartar uma atualização espontânea, pois o teste
+filtrava apenas pelo tipo de evento. O teste passou a identificar cada pedido de sincronização
+por `messageId` e a confirmar que a recuperação veio da resposta a um pedido posterior.
